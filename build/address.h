@@ -29,6 +29,7 @@ public:
     void add_row_lst();
     void delete_row_lst();
     void fill_tablet_works();
+    bool get_general_works(){return this->general_works;};
 
     QString get_name();
     QString get_address();

@@ -315,11 +315,41 @@ void Address::delete_row_lst()
                 //qInfo() << "delete item from ADDING_WORK";
             }
             list_adding_works.erase(beg);
+
+            tablet_adding_work->removeRow(row);
+            //qInfo() << "delete item from ADDING_WORK row" << row;
+            break;
         }
     }
 
-    tablet_adding_work->removeRow(row);
-    //qInfo() << "delete item from ADDING_WORK row" << row;
+    auto it = list_works.begin();
+    //qInfo() << "list_works beg.size() = "<< it->size();
+
+    int i = 0;
+    if(general_works)
+    {
+        i += name_works.size();
+        row += name_works.size();
+        for(int i = 0; it != list_works.end() && i < name_works.size(); ++i)
+            it++;
+    }
+    for(; it != list_works.end(); it++, ++i)
+    {
+        if(i == row)
+        {
+            while(!it->empty())
+            {
+                delete it->back();
+                it->back() = nullptr;
+                it->pop_back();
+                //qInfo() << "delete item from TOTAL_WORK";
+            }
+            list_works.erase(it);
+            tablet_total_work->removeRow(row);
+            //qInfo() << "delete item from TOTAL_WORK row" << row;
+            break;
+        }
+    }
 }
 
 void Address::fill_tablet_works()

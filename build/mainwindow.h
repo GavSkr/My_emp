@@ -39,6 +39,7 @@ private slots:
     void calculate_total_budget_auto();
     void edit_tablet_adding_work();
     void check_symbols();
+    void clone_items_tablet();
 
 
 private:

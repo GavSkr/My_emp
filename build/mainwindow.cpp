@@ -864,6 +864,8 @@ void MainWindow::add_page2()
 
             builds.back().tablet_total_work->setHorizontalHeaderLabels(name_columns);
             builds.back().tablet_total_work->setColumnWidth(0, 375);
+
+            connect(builds.back().tablet_total_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
         }
     }
 }
@@ -962,20 +964,6 @@ void MainWindow::enter_job() //TODO упростить код создания �
             // int rows = 4;
             // beg->tablet_total_work->setRowCount(rows);
             // qInfo() << QString("%1 _ %2").arg("Row").arg(rows);
-
-            // //Enter name of a job in col = 0(first)
-            // int col = 0;
-            // QTableWidgetItem *appartment_1_stage = new QTableWidgetItem("Квартиры 1 этап");
-            // beg->tablet_total_work->setItem(0, col, appartment_1_stage);
-
-            // QTableWidgetItem *appartment_2_stage = new QTableWidgetItem("Квартиры 2 этап");
-            // beg->tablet_total_work->setItem(1, col, appartment_2_stage);
-
-            // QTableWidgetItem *entrances_1_stage = new QTableWidgetItem("Подъезды 1 этап");
-            // beg->tablet_total_work->setItem(2, col, entrances_1_stage);
-
-            // QTableWidgetItem *entrances_2_stage = new QTableWidgetItem("Подъезды 2 этап");
-            // beg->tablet_total_work->setItem(3, col, entrances_2_stage);
 
             // //Enter count of a job in col = 1
             // col = 1;
@@ -1116,6 +1104,7 @@ void MainWindow::edit_tablet_adding_work()
             beg->add_row_lst();
 
             connect(beg->tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
+            connect(beg->tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(clone_items_tablet()));
 
             break;
         }
@@ -1198,6 +1187,38 @@ void MainWindow::check_symbols()
 
                 if(column != 0)
                     beg->tablet_adding_work->item(row, column)->setText(adding_funcs::delete_letter(beg->tablet_adding_work->item(row, column)->text()));
+            }
+            break;
+        }
+        if(w_name == beg->tablet_total_work->objectName())
+        {
+            if(beg->tablet_total_work->currentRow() >= 0)
+            {
+                int row = beg->tablet_total_work->currentRow();
+                int column = beg->tablet_total_work->currentColumn();
+
+                if(column != 0)
+                    beg->tablet_total_work->item(row, column)->setText(adding_funcs::delete_letter(beg->tablet_total_work->item(row, column)->text()));
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::clone_items_tablet()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)//, ++index)
+    {
+        if(w_name == beg->tablet_adding_work->objectName())
+        {
+            int row = beg->tablet_adding_work->currentRow();
+            int column = beg->tablet_adding_work->currentColumn();
+            if(column == 0 || column == 1)
+            {
+                beg->tablet_total_work->item(row + (beg->tablet_total_work->rowCount() - beg->tablet_adding_work->rowCount()), column)->setText(beg->tablet_adding_work->item(row, column)->text());
             }
             break;
         }
