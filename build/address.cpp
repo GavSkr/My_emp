@@ -249,15 +249,20 @@ void Address::add_row_lst()
 {
     int row = tablet_adding_work->rowCount();
     int row_t = tablet_total_work->rowCount();
+
     //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+
     tablet_adding_work->insertRow(row);
     tablet_total_work->insertRow(row_t);
 
     QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
     QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
+
     //qInfo() << "Size list_tmp " << list_tmp->size();
+
     list_adding_works.push_back(*list_tmp);
     list_works.push_back(*list_tmp_t);
+
     //qInfo() << "obj->name " << tablet_adding_work->objectName();
 
     for(int i = 0; i < tablet_adding_work->columnCount(); ++i)
@@ -297,6 +302,7 @@ void Address::delete_row_lst()
 
     auto beg = list_adding_works.begin();
     //qInfo() << "list_adding_works beg.size() = "<< beg->size();
+
     for(int i = 0; beg != list_adding_works.end(); beg++, ++i)
     {
         if(i == row)
@@ -319,6 +325,7 @@ void Address::delete_row_lst()
 void Address::fill_tablet_works()
 {
     int rows = name_works.size();
+
     if(tablet_total_work->rowCount() == 0)
     {
         for(int i = 0; i < rows; ++i)
@@ -326,7 +333,9 @@ void Address::fill_tablet_works()
             tablet_total_work->insertRow(i);
 
             QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
+
             //qInfo() << "Size list_tmp " << list_tmp->size();
+
             list_works.push_back(*list_tmp);
             for(int j = 0; j < tablet_total_work->columnCount(); ++j)
             {
@@ -342,6 +351,7 @@ void Address::fill_tablet_works()
                 tablet_total_work->setItem(i, j, list_works.back()[j]);
             }
             //qInfo() << "list_works.back() size() = "<< list_works.back().size();
+
             delete list_tmp;
             list_tmp = nullptr;
         }
@@ -349,59 +359,83 @@ void Address::fill_tablet_works()
     }
     else if(!general_works)
     {
-        qInfo() << "general_works " << general_works;
-        auto pos = list_works.begin();
-        for(int i = 0; i < rows; ++i, ++pos)
+        //qInfo() << "general_works " << general_works;
+        //qInfo() << "GW list_works size() = "<< list_works.size();
+        //auto pos = list_works.begin();
+        //qInfo() << "ADD GW item to LIST_WORK pos.size() " << pos->size() << "  pos->front()->text()  " << pos->front()->text();
+
+        for(int i = 0; i < rows; ++i)
         {
-            tablet_total_work->insertRow(i);
+            tablet_total_work->insertRow(0);
 
             QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
-            //qInfo() << "Size list_tmp " << list_tmp->size();
-            auto it = list_works.insert(pos, *list_tmp);
 
-            for(int j = 0; j < tablet_total_work->columnCount(); ++j, pos++)
+            //qInfo() << "Size list_tmp " << list_tmp->size();
+            list_works.push_front(*list_tmp);
+            auto it = list_works.begin();
+            //qInfo() << "GW in FOR list_works size() = "<< list_works.size();
+
+            for(int j = 0; j < tablet_total_work->columnCount(); ++j)
             {
                 (*it)[j] = new QTableWidgetItem();
 
                 if(j == 0)
-                    (*it)[j]->setText(name_works[i]);
+                {
+                    (*it)[j]->setText(name_works[name_works.size() - i - 1]);
+                    //qInfo() << "ADD GW in FOR item to LIST_WORK it.size() " << it->size() << "  it->front()->text()  " << ((it->front()->text().size())? it->front()->text() : "NONE");
+                }
                 else
                 {
                     (*it)[j]->setText("0");
                     (*it)[j]->setTextAlignment(Qt::AlignCenter);
                 }
-                tablet_total_work->setItem(i, j, (*it)[j]);
+                tablet_total_work->setItem(0, j, (*it)[j]);
             }
             //qInfo() << "list_works.back() size() = "<< list_works.back().size();
+
             delete list_tmp;
             list_tmp = nullptr;
         }
         general_works = true;
+
+        //DEBUG
+        // for(auto beg = list_works.begin(); beg != list_works.end(); beg++)
+        // {
+        //     qInfo() << "ADD in END_BLOCK beg->front()->text()" << beg->front()->text();
+        // }
     }
     if(apartments_total_cnt->text().toInt() == 0 && general_works)
     {
         //qInfo() << "START delete item from LIST_WORK row " << rows;
-
         //qInfo() << "list_works.size() = " << list_works.size();
         //for(int i = 0; i < rows; ++i) beg++;
 
         for(int i = 0; i < rows; ++i)
         {
             auto beg = list_works.begin();
-            //qInfo() << "list_works beg.size() = "<< beg->size();
+
+            //qInfo() << "DELETE list_works size() = "<< list_works.size();
+            //qInfo() << "DELETE item from LIST_WORK beg.size() " << beg->size();// << "  beg->back()->text()  " << beg->back()->text();
+
             while(!beg->empty())
             {
+                //qInfo() << "delete item from LIST_WORK beg.size() " << beg->size() << "  beg->back()->text()  " << beg->back()->text();
+
                 delete beg->back();
                 beg->back() = nullptr;
                 beg->pop_back();
-                //qInfo() << "delete item from LIST_WORK";
             }
+            //qInfo() << "delete after WHILE  list_works size() =" << list_works.size();
+
             list_works.erase(beg);
+            //qInfo() << "delete after ERASE  list_works size() =" << list_works.size();
+
             tablet_total_work->removeRow(0);
-            //qInfo() << "delete item from LIST_WORK row " << rows;
+            //qInfo() << "delete item from LIST_WORK row " << tablet_total_work->rowCount();
         }
         general_works = false;
     }
+    //qInfo() << "list_works size() = "<< list_works.size();
 }
 
 QString  Address::get_name()
