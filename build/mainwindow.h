@@ -40,6 +40,7 @@ private slots:
     void edit_tablet_adding_work();
     void check_symbols();
     void clone_items_tablet();
+    void calculate_sum();
 
 
 private:

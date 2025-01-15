@@ -254,6 +254,7 @@ void Address::add_row_lst()
 
     tablet_adding_work->insertRow(row);
     tablet_total_work->insertRow(row_t);
+    adding_works = true;
 
     QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
     QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
@@ -299,6 +300,10 @@ void Address::add_row_lst()
 void Address::delete_row_lst()
 {
     int row = tablet_adding_work->currentRow();
+
+    int sum = tablet_adding_work->item(row, 3)->text().toInt();
+    int total = budget_cnt_auto->text().toInt();
+    budget_cnt_auto->setText(QString::number(total - sum));
 
     auto beg = list_adding_works.begin();
     //qInfo() << "list_adding_works beg.size() = "<< beg->size();
@@ -350,7 +355,11 @@ void Address::delete_row_lst()
             break;
         }
     }
+
+    if(tablet_adding_work->rowCount() == 0) adding_works = false;
 }
+
+
 
 void Address::fill_tablet_works()
 {

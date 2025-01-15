@@ -30,6 +30,11 @@ public:
     void delete_row_lst();
     void fill_tablet_works();
     bool get_general_works(){return this->general_works;};
+    bool get_adding_works(){return this->adding_works;};
+    int get_total_ap_old(){return this->total_ap_old;};
+    int get_total_en_old(){return this->total_en_old;};
+    void set_total_ap_old(int value){this->total_ap_old = value;};
+    void set_total_en_old(int value){this->total_en_old = value;};
 
     QString get_name();
     QString get_address();
@@ -110,6 +115,9 @@ private:
     QString address = "";
     QList<QString> name_works {"Квартира 1 этап", "Квартира 2 этап","Коридор 1 этап","Коридор 2 этап"};
     bool general_works = false;
+    bool adding_works = false;
+    int total_ap_old = 0;
+    int total_en_old = 0;
 
     void new_obj();
     void clear_mem();

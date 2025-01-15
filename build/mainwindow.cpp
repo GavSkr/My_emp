@@ -577,7 +577,7 @@ void MainWindow::add_page2()
             builds.back().total_price_ap_str_cnt->setGeometry(shift_x, shift_y, width_le, height);
             builds.back().total_price_ap_str_cnt->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             builds.back().total_price_ap_str_cnt->setText("0");
-            builds.back().second_stage_ap_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
+            builds.back().total_price_ap_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
             builds.back().total_price_ap_str_cnt->setObjectName("lineedit_total_price_ap_str_cnt_" + QString::number(builds.size() - 1));
 
             connect(builds.back().total_price_ap_str_cnt, SIGNAL(textChanged(QString)), this, SLOT(check_symbols()));
@@ -621,7 +621,7 @@ void MainWindow::add_page2()
             builds.back().first_stage_ent_str_cnt->setGeometry(shift_x, shift_y, width_le, height);
             builds.back().first_stage_ent_str_cnt->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             builds.back().first_stage_ent_str_cnt->setText("0");
-            builds.back().second_stage_ap_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
+            builds.back().first_stage_ent_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
             builds.back().first_stage_ent_str_cnt->setObjectName("lineedit_first_stage_ent_str_cnt_" + QString::number(builds.size() - 1));
 
             connect(builds.back().first_stage_ent_str_cnt, SIGNAL(textChanged(QString)), this, SLOT(check_symbols()));
@@ -650,7 +650,7 @@ void MainWindow::add_page2()
             builds.back().second_stage_ent_str_cnt->setGeometry(shift_x, shift_y, width_le, height);
             builds.back().second_stage_ent_str_cnt->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             builds.back().second_stage_ent_str_cnt->setText("0");
-            builds.back().second_stage_ap_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
+            builds.back().second_stage_ent_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
             builds.back().second_stage_ent_str_cnt->setObjectName("lineedit_second_stage_ent_str_cnt_" + QString::number(builds.size() - 1));
 
             connect(builds.back().second_stage_ent_str_cnt, SIGNAL(textChanged(QString)), this, SLOT(check_symbols()));
@@ -679,7 +679,7 @@ void MainWindow::add_page2()
             builds.back().total_price_ent_str_cnt->setGeometry(shift_x, shift_y, width_le, height);
             builds.back().total_price_ent_str_cnt->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             builds.back().total_price_ent_str_cnt->setText("0");
-            builds.back().second_stage_ap_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
+            builds.back().total_price_ent_str_cnt->setMaxLength(9); //for int max value 2 147 483 647 = 10 symbols
             builds.back().total_price_ent_str_cnt->setObjectName("lineedit_total_price_ent_str_cnt_" + QString::number(builds.size() - 1));
 
             connect(builds.back().total_price_ent_str_cnt, SIGNAL(textChanged(QString)), this, SLOT(check_symbols()));
@@ -724,8 +724,10 @@ void MainWindow::add_page2()
             name_columns << "Наименование" << "Кол-во" << "Цена" << "Сумма";
 
             builds.back().tablet_adding_work->setHorizontalHeaderLabels(name_columns);
-            builds.back().tablet_adding_work->setColumnWidth(0, 350);
+            builds.back().tablet_adding_work->setColumnWidth(0, 340);
             builds.back().tablet_adding_work->setColumnWidth(3, 110);
+
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_sum()));
         }
 
         if(builds.back().add_row)
@@ -737,6 +739,7 @@ void MainWindow::add_page2()
             builds.back().add_row->setObjectName("pushbutton_add_row_" + QString::number(builds.size() - 1));
 
             connect(builds.back().add_row, SIGNAL(clicked()), this, SLOT(edit_tablet_adding_work()));
+
         }
 
         if(builds.back().delete_row)
@@ -779,6 +782,8 @@ void MainWindow::add_page2()
             builds.back().budget_cnt_auto->setReadOnly(true);
             builds.back().budget_cnt_auto->setText("0.0");
             builds.back().budget_cnt_auto->setObjectName("lineedit_budget_cnt_auto_" + QString::number(builds.size() - 1));
+
+            connect(builds.back().budget_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
         }
 
         if(builds.back().budget_executed_auto)
@@ -802,6 +807,8 @@ void MainWindow::add_page2()
             builds.back().budget_executed_cnt_auto->setReadOnly(true);
             builds.back().budget_executed_cnt_auto->setText("0.0");
             builds.back().budget_executed_cnt_auto->setObjectName("lineedit_budget_executed_cnt_auto_" + QString::number(builds.size() - 1));
+
+            connect(builds.back().budget_executed_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
         }
 
         if(builds.back().budget_remains_auto)
@@ -863,7 +870,7 @@ void MainWindow::add_page2()
             name_columns << "Наименование" << "Всего" << "Завершено" << "Осталось";
 
             builds.back().tablet_total_work->setHorizontalHeaderLabels(name_columns);
-            builds.back().tablet_total_work->setColumnWidth(0, 375);
+            builds.back().tablet_total_work->setColumnWidth(0, 360);
 
             connect(builds.back().tablet_total_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
         }
@@ -948,7 +955,7 @@ void MainWindow::calculate_total_apartments()
     }
 }
 
-void MainWindow::enter_job() //TODO упростить код создания строчек, уменьшить выделение временных объектов и сделать их удаление
+void MainWindow::enter_job()
 {
     QString spinbox_name = QObject::sender()->objectName();
 
@@ -960,63 +967,46 @@ void MainWindow::enter_job() //TODO упростить код создания �
         {
             beg->fill_tablet_works();
 
-            // //builds[index].apartments_total_cnt->value()
-            // int rows = 4;
-            // beg->tablet_total_work->setRowCount(rows);
-            // qInfo() << QString("%1 _ %2").arg("Row").arg(rows);
+            //Enter count of a job in col = 1
+            if(beg->get_general_works())
+            {
+                int col = 1;
+                beg->tablet_total_work->item(0, col)->setText(QString::number(beg->apartments_total_cnt->value()));
+                beg->tablet_total_work->item(1, col)->setText(QString::number(beg->apartments_total_cnt->value()));
+                if(beg->first_floor_lived->isChecked())
+                {
+                    beg->tablet_total_work->item(2, col)->setText(QString::number(beg->entrances_cnt->value() * beg->floors_cnt->value()));
+                    beg->tablet_total_work->item(3, col)->setText(QString::number(beg->entrances_cnt->value() * beg->floors_cnt->value()));
+                }
+                else
+                {
+                    beg->tablet_total_work->item(2, col)->setText(QString::number(beg->entrances_cnt->value() * beg->floors_cnt->value() - beg->entrances_cnt->value()));
+                    beg->tablet_total_work->item(3, col)->setText(QString::number(beg->entrances_cnt->value() * beg->floors_cnt->value() - beg->entrances_cnt->value()));
+                }
 
-            // //Enter count of a job in col = 1
-            // col = 1;
-            // QTableWidgetItem *appartment_1_stage_cnt = new QTableWidgetItem(QString::number(beg->apartments_total_cnt->value()));
-            // beg->tablet_total_work->setItem(0, col, appartment_1_stage_cnt);
+                //Enter count of a finished job in col = 2
+                col = 2;
+                int finished_ap = 0;
+                int finished_en = 0;
 
-            // QTableWidgetItem *appartment_2_stage_cnt = new QTableWidgetItem(QString::number(beg->apartments_total_cnt->value()));
-            // beg->tablet_total_work->setItem(1, col, appartment_2_stage_cnt);
+                beg->tablet_total_work->item(0, col)->setText(QString::number(finished_ap));
+                beg->tablet_total_work->item(1, col)->setText(QString::number(finished_ap));
+                beg->tablet_total_work->item(2, col)->setText(QString::number(finished_en));
+                beg->tablet_total_work->item(3, col)->setText(QString::number(finished_en));
 
-            // QTableWidgetItem *entrances_1_stage_cnt = new QTableWidgetItem(QString::number(beg->entrances_cnt->value()));
-            // beg->tablet_total_work->setItem(2, col, entrances_1_stage_cnt);
+                //Enter count of a remain job in col = 3
+                col = 3;
+                int remain_ap = beg->apartments_total_cnt->value() - finished_ap;
+                int remain_en = beg->entrances_cnt->value() * beg->floors_cnt->value() - finished_en;
+                if(!beg->first_floor_lived->isChecked())
+                    remain_en -= beg->entrances_cnt->value();
 
-            // QTableWidgetItem *entrances_2_stage_cnt = new QTableWidgetItem(QString::number(beg->entrances_cnt->value()));
-            // beg->tablet_total_work->setItem(3, col, entrances_2_stage_cnt);
 
-            // //Enter count of a finished job in col = 2
-            // col = 2;
-            // int finished_ap = 0;
-            // int finished_en = 0;
-
-            // QTableWidgetItem *appartment_1_stage_finished = new QTableWidgetItem(QString::number(finished_ap));
-            // beg->tablet_total_work->setItem(0, col, appartment_1_stage_finished);
-
-            // QTableWidgetItem *appartment_2_stage_finished = new QTableWidgetItem(QString::number(finished_ap));
-            // beg->tablet_total_work->setItem(1, col, appartment_2_stage_finished);
-
-            // QTableWidgetItem *entrances_1_stage_finished = new QTableWidgetItem(QString::number(finished_en));
-            // beg->tablet_total_work->setItem(2, col, entrances_1_stage_finished);
-
-            // QTableWidgetItem *entrances_2_stage_finished = new QTableWidgetItem(QString::number(finished_en));
-            // beg->tablet_total_work->setItem(3, col, entrances_2_stage_finished);
-
-            // //Enter count of a remain job in col = 3
-            // col = 3;
-            // int remain_ap = beg->apartments_total_cnt->value() - finished_ap;
-            // int remain_en = beg->entrances_cnt->value() - finished_en;
-
-            // QTableWidgetItem *appartment_1_stage_remain = new QTableWidgetItem(QString::number(remain_ap));
-            // //appartment_1_stage_remain->setTextAlignment(Qt::AlignCenter);
-            // beg->tablet_total_work->setItem(0, col, appartment_1_stage_remain);
-            // beg->tablet_total_work->item(0, col)->setTextAlignment(Qt::AlignCenter);
-
-            // QTableWidgetItem *appartment_2_stage_remain = new QTableWidgetItem(QString::number(remain_ap));
-            // appartment_2_stage_remain->setTextAlignment(Qt::AlignCenter);
-            // beg->tablet_total_work->setItem(1, col, appartment_2_stage_remain);
-
-            // QTableWidgetItem *entrances_1_stage_remain = new QTableWidgetItem(QString::number(remain_en));
-            // entrances_1_stage_remain->setTextAlignment(Qt::AlignCenter);
-            // beg->tablet_total_work->setItem(2, col, entrances_1_stage_remain);
-
-            // QTableWidgetItem *entrances_2_stage_remain = new QTableWidgetItem(QString::number(remain_en));
-            // entrances_2_stage_remain->setTextAlignment(Qt::AlignCenter);
-            // beg->tablet_total_work->setItem(3, col, entrances_2_stage_remain);
+                beg->tablet_total_work->item(0, col)->setText(QString::number(remain_ap));
+                beg->tablet_total_work->item(1, col)->setText(QString::number(remain_ap));
+                beg->tablet_total_work->item(2, col)->setText(QString::number(remain_en));
+                beg->tablet_total_work->item(3, col)->setText(QString::number(remain_en));
+            }
 
             //calculate_total_budget_auto
             int total_ap = beg->apartments_total_cnt->value() * beg->total_price_ap_str_cnt->text().toInt();
@@ -1045,7 +1035,7 @@ void MainWindow::calculate_total_price()
     for(; beg != builds.end(); ++beg)//, ++index)
     {
         if(lineedit_name == beg->first_stage_ap_str_cnt->objectName() ||
-           lineedit_name == beg->second_stage_ap_str_cnt->objectName()   )
+           lineedit_name == beg->second_stage_ap_str_cnt->objectName() )
         {
             int total = beg->first_stage_ap_str_cnt->text().toInt() + beg->second_stage_ap_str_cnt->text().toInt();
 
@@ -1053,7 +1043,7 @@ void MainWindow::calculate_total_price()
             break;
         }
         if(lineedit_name == beg->first_stage_ent_str_cnt->objectName() ||
-           lineedit_name == beg->second_stage_ent_str_cnt->objectName()   )
+           lineedit_name == beg->second_stage_ent_str_cnt->objectName() )
         {
             int total = beg->first_stage_ent_str_cnt->text().toInt() + beg->second_stage_ent_str_cnt->text().toInt();
 
@@ -1076,14 +1066,33 @@ void MainWindow::calculate_total_budget_auto()
         {
             int total_ap = beg->apartments_total_cnt->value() * beg->total_price_ap_str_cnt->text().toInt();
             int total_en = beg->entrances_cnt->value() * beg->total_price_ent_str_cnt->text().toInt();
-            int total = total_ap + total_en;
+
+            int total_old = beg->budget_cnt_auto->text().toInt();
+            total_old -= beg->get_total_ap_old() + beg->get_total_en_old();
+
+            int total = total_old + (total_ap + total_en);
+
+            beg->set_total_ap_old(total_ap);
+            beg->set_total_en_old(total_en);
 
             beg->budget_cnt_auto->setText(QString::number(total));
 
-            int executed = 0;
+            int executed = beg->budget_executed_cnt_auto->text().toInt();
             beg->budget_executed_cnt_auto->setText(QString::number(executed));
 
             int remains = total - executed;
+            beg->budget_remains_cnt_auto->setText(QString::number(remains));
+
+            break;
+        }
+
+        if(lineedit_name == beg->budget_cnt_auto->objectName()          ||
+           lineedit_name == beg->budget_executed_cnt_auto->objectName()  )
+        {
+            int total = beg->budget_cnt_auto->text().toInt();
+            int executed = beg->budget_executed_cnt_auto->text().toInt();
+            int remains = total - executed;
+
             beg->budget_remains_cnt_auto->setText(QString::number(remains));
 
             break;
@@ -1111,6 +1120,7 @@ void MainWindow::edit_tablet_adding_work()
         if(pushbutton_name == beg->delete_row->objectName())
         {
             beg->delete_row_lst();
+
             break;
         }
     }
@@ -1216,10 +1226,52 @@ void MainWindow::clone_items_tablet()
         {
             int row = beg->tablet_adding_work->currentRow();
             int column = beg->tablet_adding_work->currentColumn();
-            if(column == 0 || column == 1)
+
+            int row_t = row + (beg->tablet_total_work->rowCount() - beg->tablet_adding_work->rowCount());
+
+            if(column == 0)
             {
-                beg->tablet_total_work->item(row + (beg->tablet_total_work->rowCount() - beg->tablet_adding_work->rowCount()), column)->setText(beg->tablet_adding_work->item(row, column)->text());
+                beg->tablet_total_work->item(row_t, column)->setText(beg->tablet_adding_work->item(row, column)->text());
             }
+            if(column == 1)
+            {
+                beg->tablet_total_work->item(row_t, column)->setText(beg->tablet_adding_work->item(row, column)->text());
+                beg->tablet_total_work->item(row_t, column + 2)->setText(beg->tablet_adding_work->item(row, column)->text());
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::calculate_sum()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)//, ++index)
+    {
+        if(w_name == beg->tablet_adding_work->objectName())
+        {
+            if(beg->get_adding_works())
+            {
+                int row = beg->tablet_adding_work->currentRow();
+
+                if(row == -1)
+                {
+                    break;
+                }
+                int count = beg->tablet_adding_work->item(row, 1)->text().toInt();
+                int price = beg->tablet_adding_work->item(row, 2)->text().toInt();
+                int sum_old = beg->tablet_adding_work->item(row, 3)->text().toInt();
+
+                int sum = count * price;
+
+                beg->tablet_adding_work->item(row, 3)->setText(QString::number(sum));
+
+                int total = beg->budget_cnt_auto->text().toInt();
+                beg->budget_cnt_auto->setText(QString::number(total + sum - sum_old));
+            }
+
             break;
         }
     }
