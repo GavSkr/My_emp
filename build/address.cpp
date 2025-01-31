@@ -53,7 +53,8 @@ Address::Address(Address &&other) // r-value
     page1 = other.page1;
     //{====================================
     button_add_emp = other.button_add_emp;
-    tablet = other.tablet;
+    tablet_list_employees = other.tablet_list_employees;
+    tablet_pay_employees = other.tablet_pay_employees;
     //====================================}
 
     page2 = other.page2;
@@ -122,7 +123,8 @@ Address::Address(Address &&other) // r-value
     other.page1 = nullptr;
     //{====================================
     other.button_add_emp = nullptr;
-    other.tablet = nullptr;
+    other.tablet_list_employees = nullptr;
+    other.tablet_pay_employees = nullptr;
     //====================================}
 
     other.page2 = nullptr;
@@ -195,38 +197,6 @@ Address &Address::operator=(const Address &other)
         address = other.address;
         list_adding_works = other.list_adding_works;
         list_works = other.list_works;
-
-        // delete this->tab_page;
-        // delete this->btn_page;
-
-        // delete this->page1;
-        // delete this->button_add_emp;
-        // delete this->tablet;
-
-        // delete this->page2;
-        // delete this->name_obj;
-
-
-        // this->tab_page = nullptr;
-        // this->btn_page = nullptr;
-
-        // this->page1 = nullptr;
-        // this->button_add_emp = nullptr;
-        // this->tablet = nullptr;
-
-        // this->page2 = nullptr;
-        // this->name_obj = nullptr;
-
-
-        // this->tab_page = new QWidget();
-        // this->btn_page = new QPushButton();
-
-        // this->page1 = new QGroupBox();
-        // this->button_add_emp = new QPushButton();
-        // this->tablet = new QTableWidget();
-
-        // this->page2 = new QGroupBox();
-        // this->name_obj = new QLabel();
 
         clear_mem();
         new_obj();
@@ -495,7 +465,8 @@ void Address::new_obj()
     page1 = new QGroupBox();
     //{====================================
     button_add_emp = new QPushButton();
-    tablet = new QTableWidget();
+    tablet_list_employees = new QTableWidget();
+    tablet_pay_employees = new QTableWidget();
     //====================================}
 
     page2 = new QGroupBox();
@@ -569,7 +540,8 @@ void Address::clear_mem()
     page1 = nullptr;
     //{====================================
     button_add_emp = nullptr;
-    tablet = nullptr;
+    tablet_list_employees = nullptr;
+    tablet_pay_employees = nullptr;
     //====================================}
 
     page2 = nullptr;
@@ -635,9 +607,6 @@ void Address::clear_mem()
 
 void Address::delete_mem()
 {
-    delete tab_page;
-    delete btn_page;
-
     for(auto beg = list_adding_works.begin(); beg !=list_adding_works.end(); beg++)
     {
         while(!beg->empty())
@@ -660,10 +629,14 @@ void Address::delete_mem()
         }
     }
 
+    delete tab_page;
+    delete btn_page;
+
     delete page1;
     //{====================================
     delete button_add_emp;
-    delete tablet;
+    delete tablet_list_employees;
+    delete tablet_pay_employees;
     //====================================}
 
     delete page2;

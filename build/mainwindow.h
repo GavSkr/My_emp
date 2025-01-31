@@ -41,6 +41,7 @@ private slots:
     void check_symbols();
     void clone_items_tablet();
     void calculate_sum();
+    void tablet_list_tasks_setVisible();
 
 
 private:

@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include <QScreen>
 #include "funcs.h"
+#include "employee.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -87,13 +88,53 @@ void MainWindow::add_employee()
         }
     }
 
-    QTableWidgetItem *itm1 = new QTableWidgetItem("Fuck off");
-    QTableWidgetItem *itm2 = new QTableWidgetItem("123456789");
-    QTableWidgetItem *itm3 = new QTableWidgetItem("100000001");
+    int columns = 2;
+    int rows = 0;
+    int x = 10;
+    int y = 45;
+    int shift_x = 10;
 
-    beg->tablet->setItem(0, 0, itm1);
-    beg->tablet->setItem(0, 1, itm2);
-    beg->tablet->setItem(0, 2, itm3);
+
+    auto row = beg->tablet_list_employees->rowCount();
+    beg->tablet_list_employees->insertRow(row);
+
+    if(!beg->list_employees.empty())
+    {
+        beg->list_employees.back().tablet_list_tasks->setVisible(false);
+    }
+
+    Employee default_employee;
+
+    beg->list_employees.push_back(default_employee);
+
+    if(beg->list_employees.back().tablet_list_tasks)
+    {
+        qInfo() << "Create a tablet tasks of an employee";
+
+        beg->tablet_list_employees->setItem(row, 0, beg->list_employees.back().item_name);
+        beg->tablet_list_employees->setItem(row, 1, beg->list_employees.back().item_total_pays);
+
+        beg->list_employees.back().tablet_list_tasks->setParent(builds.back().page1);
+
+        auto tablet_width = ui->tabWidget->geometry().width() - beg->tablet_list_employees->geometry().width() - shift_x - 40;
+        auto tablet_height = beg->tablet_list_employees->geometry().height();
+
+        beg->list_employees.back().tablet_list_tasks->setObjectName("tablet_pay_employees_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_employees.size() - 1));
+
+        x +=  beg->tablet_list_employees->geometry().width() + shift_x;
+        beg->list_employees.back().tablet_list_tasks->setGeometry(x, y, tablet_width, tablet_height);
+        beg->list_employees.back().tablet_list_tasks->setColumnCount(columns);
+        beg->list_employees.back().tablet_list_tasks->setRowCount(rows);
+        beg->list_employees.back().tablet_list_tasks->setColumnWidth(0, (tablet_width / 20) * 3);
+        beg->list_employees.back().tablet_list_tasks->setColumnWidth(1, tablet_width / 20);
+
+        QStringList name_columns;
+        name_columns << "Наименование работ" << "Выплата";
+
+        beg->list_employees.back().tablet_list_tasks->setHorizontalHeaderLabels(name_columns);
+        beg->list_employees.back().tablet_list_tasks->setVisible(true);
+    }
+
 }
 
 void MainWindow::change_page()
@@ -149,24 +190,32 @@ void MainWindow::add_page1()
         connect(builds.back().button_add_emp, SIGNAL(clicked()), this, SLOT(add_employee()));
     }
 
-    int columns = 3;
-    int rows = 3;
-    if(builds.back().tablet)
+    int columns = 2;
+    int rows = 0;
+    int x = 10;
+    int y = 45;
+    int shift_x = 10;
+
+    if(builds.back().tablet_list_employees)
     {
-        builds.back().tablet->setParent(builds.back().page1);
+        builds.back().tablet_list_employees->setParent(builds.back().page1);
 
-        auto tablet_width = ui->tabWidget->geometry().width() - 25;
-        auto tablet_height = ui->tabWidget->geometry().height() - 125; //(10 + 25 + 10 + 40 + 40);
+        auto tablet_width = ui->tabWidget->geometry().width() / 5;
+        auto tablet_height = ui->tabWidget->geometry().height() - 120; //(10 + 25 + 10 + 40 + 40);
 
-        builds.back().tablet->setObjectName("tablet_" + QString::number(builds.size() - 1));
-        builds.back().tablet->setGeometry(10, 45, tablet_width, tablet_height-500);
-        builds.back().tablet->setColumnCount(columns);
-        builds.back().tablet->setRowCount(rows);
+        builds.back().tablet_list_employees->setObjectName("tablet_list_employees_" + QString::number(builds.size() - 1));
+        builds.back().tablet_list_employees->setGeometry(x, y, tablet_width, tablet_height);
+        builds.back().tablet_list_employees->setColumnCount(columns);
+        builds.back().tablet_list_employees->setRowCount(rows);
+        builds.back().tablet_list_employees->setColumnWidth(0, tablet_width / 2 - 5);
+        builds.back().tablet_list_employees->setColumnWidth(1, tablet_width / 2 - 15);
 
         QStringList name_columns;
-        name_columns << "Name" << "Pay" << "Total";
+        name_columns << "Имя" << "Выплата";
 
-        builds.back().tablet->setHorizontalHeaderLabels(name_columns);
+        builds.back().tablet_list_employees->setHorizontalHeaderLabels(name_columns);
+
+        connect(builds.back().tablet_list_employees, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(tablet_list_tasks_setVisible()));
     }
 }
 
@@ -1270,6 +1319,37 @@ void MainWindow::calculate_sum()
 
                 int total = beg->budget_cnt_auto->text().toInt();
                 beg->budget_cnt_auto->setText(QString::number(total + sum - sum_old));
+            }
+
+            break;
+        }
+    }
+}
+
+void MainWindow::tablet_list_tasks_setVisible()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        if(w_name == beg->tablet_list_employees->objectName())
+        {
+            auto currentRow = beg->tablet_list_employees->currentRow();
+
+            for(auto emp_beg = beg->list_employees.begin(); emp_beg != beg->list_employees.end(); emp_beg++)
+            {
+                emp_beg->tablet_list_tasks->setVisible(false);
+            }
+
+            auto emp_beg = beg->list_employees.begin();
+
+            for(int i = 0; i <= currentRow; emp_beg++, ++i)
+            {
+                if(i == currentRow)
+                {
+                    emp_beg->tablet_list_tasks->setVisible(true);
+                }
             }
 
             break;

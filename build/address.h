@@ -11,6 +11,8 @@
 #include <QSpinBox>
 #include <QCheckBox>
 
+#include "employee.h"
+
 class Address
 {
 public:
@@ -43,11 +45,13 @@ public:
     QPushButton *btn_page = nullptr;
     std::list<QList<QTableWidgetItem*>> list_adding_works;
     std::list<QList<QTableWidgetItem*>> list_works;
+    std::list<Employee> list_employees;
 
     QGroupBox *page1 = nullptr;
     //{====================================
     QPushButton *button_add_emp = nullptr;
-    QTableWidget *tablet = nullptr;
+    QTableWidget *tablet_list_employees = nullptr;
+    QTableWidget *tablet_pay_employees = nullptr;
     //====================================}
 
     QGroupBox *page2 = nullptr;
