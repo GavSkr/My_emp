@@ -37,6 +37,7 @@ public:
     int get_total_en_old(){return this->total_en_old;};
     void set_total_ap_old(int value){this->total_ap_old = value;};
     void set_total_en_old(int value){this->total_en_old = value;};
+    void fill_tablet_list_tasks();
 
     QString get_name();
     QString get_address();
@@ -45,13 +46,14 @@ public:
     QPushButton *btn_page = nullptr;
     std::list<QList<QTableWidgetItem*>> list_adding_works;
     std::list<QList<QTableWidgetItem*>> list_works;
-    std::list<Employee> list_employees;
+    std::list<Employee> list_groups;
 
     QGroupBox *page1 = nullptr;
     //{====================================
     QPushButton *button_add_emp = nullptr;
-    QTableWidget *tablet_list_employees = nullptr;
-    QTableWidget *tablet_pay_employees = nullptr;
+    QPushButton *button_delete_emp = nullptr;
+    QTableWidget *tablet_list_groups = nullptr;
+    QTableWidget *tablet_pay_groups = nullptr;
     //====================================}
 
     QGroupBox *page2 = nullptr;
@@ -118,6 +120,7 @@ private:
     QString name = "";
     QString address = "";
     QList<QString> name_works {"Квартира 1 этап", "Квартира 2 этап","Коридор 1 этап","Коридор 2 этап"};
+    QList<QString> name_tasks {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
     bool general_works = false;
     bool adding_works = false;
     int total_ap_old = 0;

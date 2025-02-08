@@ -53,8 +53,9 @@ Address::Address(Address &&other) // r-value
     page1 = other.page1;
     //{====================================
     button_add_emp = other.button_add_emp;
-    tablet_list_employees = other.tablet_list_employees;
-    tablet_pay_employees = other.tablet_pay_employees;
+    button_delete_emp = other.button_delete_emp;
+    tablet_list_groups = other.tablet_list_groups;
+    tablet_pay_groups = other.tablet_pay_groups;
     //====================================}
 
     page2 = other.page2;
@@ -123,8 +124,9 @@ Address::Address(Address &&other) // r-value
     other.page1 = nullptr;
     //{====================================
     other.button_add_emp = nullptr;
-    other.tablet_list_employees = nullptr;
-    other.tablet_pay_employees = nullptr;
+    other.button_delete_emp = nullptr;
+    other.tablet_list_groups = nullptr;
+    other.tablet_pay_groups = nullptr;
     //====================================}
 
     other.page2 = nullptr;
@@ -250,6 +252,8 @@ void Address::add_row_lst()
     for(int i = 0; i < tablet_total_work->columnCount(); ++i)
     {
         list_works.back()[i] = new QTableWidgetItem();
+        list_works.back()[i]->setFlags(Qt::ItemIsEnabled);
+
         if(i != 0)
         {
             list_works.back()[i]->setText("0");
@@ -349,6 +353,7 @@ void Address::fill_tablet_works()
             for(int j = 0; j < tablet_total_work->columnCount(); ++j)
             {
                 list_works.back()[j] = new QTableWidgetItem();
+                list_works.back()[j]->setFlags(Qt::ItemIsEnabled);
 
                 if(j == 0)
                     list_works.back()[j]->setText(name_works[i]);
@@ -387,6 +392,7 @@ void Address::fill_tablet_works()
             for(int j = 0; j < tablet_total_work->columnCount(); ++j)
             {
                 (*it)[j] = new QTableWidgetItem();
+                (*it)[j]->setFlags(Qt::ItemIsEnabled);
 
                 if(j == 0)
                 {
@@ -447,6 +453,89 @@ void Address::fill_tablet_works()
     //qInfo() << "list_works size() = "<< list_works.size();
 }
 
+void Address::fill_tablet_list_tasks()
+{
+    int adding_rows = name_tasks.size();
+    int row_t = tablet_total_work->rowCount() + adding_rows;
+
+    //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+
+    list_groups.back().tablet_list_tasks->setRowCount(row_t);
+
+    for(int row_i = 0; row_i < adding_rows; ++row_i)
+    {
+
+        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
+
+        //qInfo() << "Size list_tmp " << list_tmp->size();
+
+        list_groups.back().list_tasks.push_back(*qlist_tmp_t);
+
+        //qInfo() << "obj->name " << tablet_adding_work->objectName();
+
+
+        for(int i = 0; i < list_groups.back().tablet_list_tasks->columnCount(); ++i)
+        {
+            list_groups.back().list_tasks.back()[i] = new QTableWidgetItem();
+            if(i == 0)
+            {
+                list_groups.back().list_tasks.back()[i]->setText(name_tasks[row_i]);
+                list_groups.back().list_tasks.back()[i]->setFlags(Qt::ItemIsEnabled);
+            }
+
+            if(i != 0)
+            {
+                list_groups.back().list_tasks.back()[i]->setText("");
+                list_groups.back().list_tasks.back()[i]->setTextAlignment(Qt::AlignCenter);
+            }
+
+            list_groups.back().tablet_list_tasks->setItem(row_i, i, list_groups.back().list_tasks.back()[i]);
+            //qInfo() << "Add item in table " << i;
+        }
+
+        delete qlist_tmp_t;
+        qlist_tmp_t = nullptr;
+    }
+
+
+    for(int row_i = 0; row_i < tablet_total_work->rowCount(); ++row_i)
+    {
+
+        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
+
+        //qInfo() << "Size list_tmp " << list_tmp->size();
+
+        list_groups.back().list_tasks.push_back(*qlist_tmp_t);
+
+        //qInfo() << "obj->name " << tablet_adding_work->objectName();
+
+
+        for(int i = 0; i < list_groups.back().tablet_list_tasks->columnCount(); ++i)
+        {
+            list_groups.back().list_tasks.back()[i] = new QTableWidgetItem();
+            if(i == 0)
+            {
+                list_groups.back().list_tasks.back()[i]->setText(tablet_total_work->item(row_i, i)->text());
+                list_groups.back().list_tasks.back()[i]->setFlags(Qt::ItemIsEnabled);
+            }
+
+            if(i != 0)
+            {
+                list_groups.back().list_tasks.back()[i]->setText("");
+                list_groups.back().list_tasks.back()[i]->setTextAlignment(Qt::AlignCenter);
+            }
+
+            list_groups.back().tablet_list_tasks->setItem(row_i + adding_rows, i, list_groups.back().list_tasks.back()[i]);
+            //qInfo() << "Add item in table " << i;
+        }
+
+        delete qlist_tmp_t;
+        qlist_tmp_t = nullptr;
+    }
+
+
+}
+
 QString  Address::get_name()
 {
     return name;
@@ -465,8 +554,9 @@ void Address::new_obj()
     page1 = new QGroupBox();
     //{====================================
     button_add_emp = new QPushButton();
-    tablet_list_employees = new QTableWidget();
-    tablet_pay_employees = new QTableWidget();
+    button_delete_emp = new QPushButton();
+    tablet_list_groups = new QTableWidget();
+    tablet_pay_groups = new QTableWidget();
     //====================================}
 
     page2 = new QGroupBox();
@@ -540,8 +630,9 @@ void Address::clear_mem()
     page1 = nullptr;
     //{====================================
     button_add_emp = nullptr;
-    tablet_list_employees = nullptr;
-    tablet_pay_employees = nullptr;
+    button_delete_emp = nullptr;
+    tablet_list_groups = nullptr;
+    tablet_pay_groups = nullptr;
     //====================================}
 
     page2 = nullptr;
@@ -635,8 +726,9 @@ void Address::delete_mem()
     delete page1;
     //{====================================
     delete button_add_emp;
-    delete tablet_list_employees;
-    delete tablet_pay_employees;
+    delete button_delete_emp;
+    delete tablet_list_groups;
+    delete tablet_pay_groups;
     //====================================}
 
     delete page2;

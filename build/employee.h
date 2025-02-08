@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QTableWidget>
+#include <QPushButton>
 
 class Employee
 {
@@ -19,13 +20,26 @@ public:
 
     std::list<QList<QTableWidgetItem*>> list_tasks;
     QTableWidget *tablet_list_tasks = nullptr;
+    std::list<QList<QTableWidgetItem*>> list_employees;
+    QTableWidget *tablet_list_employees = nullptr;
+
+    QPushButton *button_add_emp = nullptr;
+    QPushButton *button_delete_emp = nullptr;
+    QPushButton *button_add_pay = nullptr;
 
     QTableWidgetItem* item_name = nullptr;
     QTableWidgetItem* item_total_pays = nullptr;
 
+    QTableWidgetItem* item_name_emp = nullptr;
+    QTableWidgetItem* item_total_pays_emp = nullptr;
+
+    void add_employee();
+    void delete_employee();
+    void add_pay();
+
 private:
-    QString name;
-    QString last_name;
+    QString name_group;
+    //QString last_name;
 
     void new_obj();
     void clear_mem();

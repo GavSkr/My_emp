@@ -72,10 +72,12 @@ void MainWindow::on_Button_add_address_clicked()
 
 void MainWindow::on_Button_exit_clicked()
 {
+    builds.clear();
+
     QApplication::quit();
 }
 
-void MainWindow::add_employee()
+void MainWindow::add_group()
 {
     QString btn_name = QObject::sender()->objectName();
 
@@ -95,46 +97,168 @@ void MainWindow::add_employee()
     int shift_x = 10;
 
 
-    auto row = beg->tablet_list_employees->rowCount();
-    beg->tablet_list_employees->insertRow(row);
+    auto row = beg->tablet_list_groups->rowCount();
+    beg->tablet_list_groups->insertRow(row);
 
-    if(!beg->list_employees.empty())
+    if(!beg->list_groups.empty())
     {
-        beg->list_employees.back().tablet_list_tasks->setVisible(false);
+        beg->list_groups.back().tablet_list_tasks->setVisible(false);
+        beg->list_groups.back().button_add_emp->setVisible(false);
+        beg->list_groups.back().button_delete_emp->setVisible(false);
+        beg->list_groups.back().button_add_pay->setVisible(false);
+        beg->list_groups.back().tablet_list_employees->setVisible(false);
     }
 
-    Employee default_employee;
+    Employee default_group;
 
-    beg->list_employees.push_back(default_employee);
+    beg->list_groups.push_back(default_group);
 
-    if(beg->list_employees.back().tablet_list_tasks)
+    beg->tablet_list_groups->setItem(row, 0, beg->list_groups.back().item_name);
+    beg->tablet_list_groups->setItem(row, 1, beg->list_groups.back().item_total_pays);
+
+    if(beg->list_groups.back().tablet_list_tasks)
     {
-        qInfo() << "Create a tablet tasks of an employee";
+        qInfo() << "Create a tablet tasks of a group";
 
-        beg->tablet_list_employees->setItem(row, 0, beg->list_employees.back().item_name);
-        beg->tablet_list_employees->setItem(row, 1, beg->list_employees.back().item_total_pays);
+        beg->list_groups.back().tablet_list_tasks->setParent(beg->page1);
 
-        beg->list_employees.back().tablet_list_tasks->setParent(builds.back().page1);
+        auto tablet_width = ui->tabWidget->geometry().width() - beg->tablet_list_groups->geometry().width() - shift_x - 30;
+        auto tablet_height = ui->tabWidget->geometry().height() - 120;
 
-        auto tablet_width = ui->tabWidget->geometry().width() - beg->tablet_list_employees->geometry().width() - shift_x - 40;
-        auto tablet_height = beg->tablet_list_employees->geometry().height();
+        beg->list_groups.back().tablet_list_tasks->setObjectName("tablet_list_tasks_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_groups.size() - 1));
 
-        beg->list_employees.back().tablet_list_tasks->setObjectName("tablet_pay_employees_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_employees.size() - 1));
+        x = beg->tablet_list_groups->geometry().x() + beg->tablet_list_groups->geometry().width() + shift_x;
+        y = beg->tablet_list_groups->geometry().y();
 
-        x +=  beg->tablet_list_employees->geometry().width() + shift_x;
-        beg->list_employees.back().tablet_list_tasks->setGeometry(x, y, tablet_width, tablet_height);
-        beg->list_employees.back().tablet_list_tasks->setColumnCount(columns);
-        beg->list_employees.back().tablet_list_tasks->setRowCount(rows);
-        beg->list_employees.back().tablet_list_tasks->setColumnWidth(0, (tablet_width / 20) * 3);
-        beg->list_employees.back().tablet_list_tasks->setColumnWidth(1, tablet_width / 20);
+        beg->list_groups.back().tablet_list_tasks->setGeometry(x, y, tablet_width, tablet_height);
+        beg->list_groups.back().tablet_list_tasks->setColumnCount(columns);
+        beg->list_groups.back().tablet_list_tasks->setColumnWidth(0, (tablet_width / 20) * 3);
+        beg->list_groups.back().tablet_list_tasks->setColumnWidth(1, tablet_width / 20);
 
         QStringList name_columns;
-        name_columns << "Наименование работ" << "Выплата";
+        name_columns << "Наименование работ" << "1";
+        beg->list_groups.back().tablet_list_tasks->setHorizontalHeaderLabels(name_columns);
 
-        beg->list_employees.back().tablet_list_tasks->setHorizontalHeaderLabels(name_columns);
-        beg->list_employees.back().tablet_list_tasks->setVisible(true);
+        if(beg->tablet_total_work->rowCount() > 0)
+        {
+            beg->fill_tablet_list_tasks();
+        }
+        else
+        {
+            beg->list_groups.back().tablet_list_tasks->setRowCount(rows);
+        }
+
+        beg->list_groups.back().tablet_list_tasks->setVisible(true);
     }
 
+    int y_btn = beg->tablet_list_groups->geometry().y() + beg->tablet_list_groups->geometry().height() + 10;
+
+    if(beg->list_groups.back().button_add_emp)
+    {
+        beg->list_groups.back().button_add_emp->setParent(beg->page1);
+
+        beg->list_groups.back().button_add_emp->setGeometry(10, y_btn, 150, 25);
+        beg->list_groups.back().button_add_emp->setText("Добавить работника");
+        beg->list_groups.back().button_add_emp->setObjectName(beg->tablet_list_groups->objectName() + "_" + "btn_add_emp_" + QString::number(beg->list_groups.size() - 1));
+
+        beg->list_groups.back().button_add_emp->setVisible(true);
+
+        connect(beg->list_groups.back().button_add_emp, SIGNAL(clicked()), this, SLOT(add_employee()));
+    }
+
+    if(beg->list_groups.back().button_delete_emp)
+    {
+        beg->list_groups.back().button_delete_emp->setParent(beg->page1);
+
+        int x = builds.back().button_add_emp->geometry().width() + 20;
+
+        beg->list_groups.back().button_delete_emp->setGeometry(x, y_btn, 150, 25);
+        beg->list_groups.back().button_delete_emp->setText("Удалить работника");
+        beg->list_groups.back().button_delete_emp->setObjectName(beg->tablet_list_groups->objectName() + "_" + "btn_delete_emp_" + QString::number(beg->list_groups.size() - 1));
+        beg->list_groups.back().button_delete_emp->setVisible(true);
+
+        if(beg->list_groups.back().tablet_list_employees->rowCount() == 0)
+            beg->list_groups.back().button_delete_emp->setEnabled(false);
+
+        connect(beg->list_groups.back().button_delete_emp, SIGNAL(clicked()), this, SLOT(delete_employee()));
+    }
+
+    if(beg->list_groups.back().button_add_pay)
+    {
+        beg->list_groups.back().button_add_pay->setParent(beg->page1);
+
+        int x = beg->list_groups.back().tablet_list_tasks->geometry().x();
+        int y = beg->btn_page->geometry().y();
+
+        beg->list_groups.back().button_add_pay->setGeometry(x, y, 150, 25);
+        beg->list_groups.back().button_add_pay->setText("Добавить выплату");
+        beg->list_groups.back().button_add_pay->setObjectName(beg->tablet_list_groups->objectName() + "_" + "btn_add_pay_" + QString::number(beg->list_groups.size() - 1));
+        beg->list_groups.back().button_add_pay->setVisible(true);
+
+        connect(beg->list_groups.back().button_add_pay, SIGNAL(clicked()), this, SLOT(add_pay()));
+    }
+
+    if(beg->list_groups.back().tablet_list_employees)
+    {
+        qInfo() << "Create a tablet list of an employee";
+
+        beg->list_groups.back().tablet_list_employees->setItem(row, 0, beg->list_groups.back().item_name_emp);
+        beg->list_groups.back().tablet_list_employees->setItem(row, 1, beg->list_groups.back().item_total_pays_emp);
+
+        beg->list_groups.back().tablet_list_employees->setParent(beg->page1);
+
+        auto tablet_width = beg->tablet_list_groups->geometry().width();
+        auto tablet_height = beg->tablet_list_groups->geometry().height() - 45;
+
+        beg->list_groups.back().tablet_list_employees->setObjectName("tablet_list_employees_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_groups.size() - 1));
+
+        x = beg->list_groups.back().button_add_emp->geometry().x();
+        y = beg->list_groups.back().button_add_emp->geometry().y() + beg->list_groups.back().button_add_emp->geometry().height() + shift_x;
+
+        beg->list_groups.back().tablet_list_employees->setGeometry(x, y, tablet_width, tablet_height);
+        beg->list_groups.back().tablet_list_employees->setColumnCount(columns);
+        beg->list_groups.back().tablet_list_employees->setRowCount(rows);
+        beg->list_groups.back().tablet_list_employees->setColumnWidth(0, tablet_width / 2);
+        beg->list_groups.back().tablet_list_employees->setColumnWidth(1, tablet_width / 2 - 20);
+
+        QStringList name_columns;
+        name_columns << "Имя работника" << "Выплата";
+
+        beg->list_groups.back().tablet_list_employees->setHorizontalHeaderLabels(name_columns);
+        beg->list_groups.back().tablet_list_employees->setVisible(true);
+    }
+
+    (beg->tablet_list_groups->rowCount() > 0)? beg->button_delete_emp->setEnabled(true) : beg->button_delete_emp->setEnabled(false);
+}
+
+void MainWindow::delete_group()
+{
+    QString btn_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        if(btn_name == beg->button_delete_emp->objectName())
+        {
+            break;
+        }
+    }
+
+    auto row = beg->tablet_list_groups->currentRow();
+
+    auto groups_beg = beg->list_groups.begin();
+    for(int i = 0; i < row && groups_beg != beg->list_groups.end(); ++i)
+        groups_beg++;
+
+    if(groups_beg == beg->list_groups.end()) qInfo() << "PZDEC: size = " << beg->list_groups.size();
+
+    qInfo() << "Delete group: " << row << " - " << groups_beg->get_full_name();
+
+    beg->list_groups.erase(groups_beg);
+
+    beg->tablet_list_groups->removeRow(row);
+
+    if(beg->tablet_list_groups->rowCount() == 0) beg->button_delete_emp->setEnabled(false);
 }
 
 void MainWindow::change_page()
@@ -184,10 +308,26 @@ void MainWindow::add_page1()
         builds.back().button_add_emp->setParent(builds.back().page1);
 
         builds.back().button_add_emp->setGeometry(10, 10, 150, 25);
-        builds.back().button_add_emp->setText("Добавить работника");
+        builds.back().button_add_emp->setText("Добавить бригаду");
         builds.back().button_add_emp->setObjectName("btn_add_emp_" + QString::number(builds.size() - 1));
 
-        connect(builds.back().button_add_emp, SIGNAL(clicked()), this, SLOT(add_employee()));
+        connect(builds.back().button_add_emp, SIGNAL(clicked()), this, SLOT(add_group()));
+    }
+
+    if(builds.back().button_delete_emp)
+    {
+        builds.back().button_delete_emp->setParent(builds.back().page1);
+
+        int x = builds.back().button_add_emp->geometry().width() + 20;
+
+        builds.back().button_delete_emp->setGeometry(x, 10, 150, 25);
+        builds.back().button_delete_emp->setText("Удалить бригаду");
+        builds.back().button_delete_emp->setObjectName("btn_delete_emp_" + QString::number(builds.size() - 1));
+
+        if(builds.back().tablet_list_groups->rowCount() == 0)
+            builds.back().button_delete_emp->setEnabled(false);
+
+        connect(builds.back().button_delete_emp, SIGNAL(clicked()), this, SLOT(delete_group()));
     }
 
     int columns = 2;
@@ -196,26 +336,26 @@ void MainWindow::add_page1()
     int y = 45;
     int shift_x = 10;
 
-    if(builds.back().tablet_list_employees)
+    if(builds.back().tablet_list_groups)
     {
-        builds.back().tablet_list_employees->setParent(builds.back().page1);
+        builds.back().tablet_list_groups->setParent(builds.back().page1);
 
         auto tablet_width = ui->tabWidget->geometry().width() / 5;
-        auto tablet_height = ui->tabWidget->geometry().height() - 120; //(10 + 25 + 10 + 40 + 40);
+        auto tablet_height = (ui->tabWidget->geometry().height() - 120) / 2; //(10 + 25 + 10 + 40 + 40);
 
-        builds.back().tablet_list_employees->setObjectName("tablet_list_employees_" + QString::number(builds.size() - 1));
-        builds.back().tablet_list_employees->setGeometry(x, y, tablet_width, tablet_height);
-        builds.back().tablet_list_employees->setColumnCount(columns);
-        builds.back().tablet_list_employees->setRowCount(rows);
-        builds.back().tablet_list_employees->setColumnWidth(0, tablet_width / 2 - 5);
-        builds.back().tablet_list_employees->setColumnWidth(1, tablet_width / 2 - 15);
+        builds.back().tablet_list_groups->setObjectName("tablet_list_groups_" + QString::number(builds.size() - 1));
+        builds.back().tablet_list_groups->setGeometry(x, y, tablet_width, tablet_height);
+        builds.back().tablet_list_groups->setColumnCount(columns);
+        builds.back().tablet_list_groups->setRowCount(rows);
+        builds.back().tablet_list_groups->setColumnWidth(0, tablet_width / 2 - 5);
+        builds.back().tablet_list_groups->setColumnWidth(1, tablet_width / 2 - 15);
 
         QStringList name_columns;
         name_columns << "Имя" << "Выплата";
 
-        builds.back().tablet_list_employees->setHorizontalHeaderLabels(name_columns);
+        builds.back().tablet_list_groups->setHorizontalHeaderLabels(name_columns);
 
-        connect(builds.back().tablet_list_employees, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(tablet_list_tasks_setVisible()));
+        connect(builds.back().tablet_list_groups, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(tablet_list_tasks_setVisible()));
     }
 }
 
@@ -1333,26 +1473,91 @@ void MainWindow::tablet_list_tasks_setVisible()
     auto beg = builds.begin();
     for(; beg != builds.end(); ++beg)
     {
-        if(w_name == beg->tablet_list_employees->objectName())
+        if(w_name == beg->tablet_list_groups->objectName())
         {
-            auto currentRow = beg->tablet_list_employees->currentRow();
+            auto currentRow = beg->tablet_list_groups->currentRow();
 
-            for(auto emp_beg = beg->list_employees.begin(); emp_beg != beg->list_employees.end(); emp_beg++)
+            for(auto emp_beg = beg->list_groups.begin(); emp_beg != beg->list_groups.end(); emp_beg++)
             {
                 emp_beg->tablet_list_tasks->setVisible(false);
+                emp_beg->button_add_emp->setVisible(false);
+                emp_beg->button_delete_emp->setVisible(false);
+                emp_beg->button_add_pay->setVisible(false);
+                emp_beg->tablet_list_employees->setVisible(false);
             }
 
-            auto emp_beg = beg->list_employees.begin();
+            auto emp_beg = beg->list_groups.begin();
 
             for(int i = 0; i <= currentRow; emp_beg++, ++i)
             {
                 if(i == currentRow)
                 {
                     emp_beg->tablet_list_tasks->setVisible(true);
+                    emp_beg->button_add_emp->setVisible(true);
+                    emp_beg->button_delete_emp->setVisible(true);
+                    emp_beg->button_add_pay->setVisible(true);
+                    emp_beg->tablet_list_employees->setVisible(true);
                 }
             }
 
             break;
+        }
+    }
+}
+
+void MainWindow::add_employee()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        auto beg_groups = beg->list_groups.begin();
+        for(; beg_groups != beg->list_groups.end(); ++beg_groups)
+        {
+            if(w_name == beg_groups->button_add_emp->objectName())
+            {
+                beg_groups->add_employee();
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::delete_employee()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        auto beg_groups = beg->list_groups.begin();
+        for(; beg_groups != beg->list_groups.end(); ++beg_groups)
+        {
+            if(w_name == beg_groups->button_delete_emp->objectName())
+            {
+                beg_groups->delete_employee();
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::add_pay()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        auto beg_groups = beg->list_groups.begin();
+        for(; beg_groups != beg->list_groups.end(); ++beg_groups)
+        {
+            if(w_name == beg_groups->button_add_pay->objectName())
+            {
+                beg_groups->add_pay();
+                break;
+            }
         }
     }
 }

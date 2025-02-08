@@ -24,7 +24,8 @@ private slots:
 
     void on_Button_exit_clicked();
 
-    void add_employee();
+    void add_group();
+    void delete_group();
 
     void change_page();
 
@@ -42,6 +43,9 @@ private slots:
     void clone_items_tablet();
     void calculate_sum();
     void tablet_list_tasks_setVisible();
+    void add_employee();
+    void delete_employee();
+    void add_pay();
 
 
 private:
