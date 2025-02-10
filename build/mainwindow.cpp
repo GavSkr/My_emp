@@ -107,6 +107,7 @@ void MainWindow::add_group()
         beg->list_groups.back().button_delete_emp->setVisible(false);
         beg->list_groups.back().button_add_pay->setVisible(false);
         beg->list_groups.back().tablet_list_employees->setVisible(false);
+        beg->list_groups.back().tablet_list_pay->setVisible(false);
     }
 
     Employee default_group;
@@ -123,7 +124,7 @@ void MainWindow::add_group()
         beg->list_groups.back().tablet_list_tasks->setParent(beg->page1);
 
         auto tablet_width = ui->tabWidget->geometry().width() - beg->tablet_list_groups->geometry().width() - shift_x - 30;
-        auto tablet_height = ui->tabWidget->geometry().height() - 120;
+        auto tablet_height = ui->tabWidget->geometry().height() - 400;
 
         beg->list_groups.back().tablet_list_tasks->setObjectName("tablet_list_tasks_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_groups.size() - 1));
 
@@ -149,6 +150,32 @@ void MainWindow::add_group()
         }
 
         beg->list_groups.back().tablet_list_tasks->setVisible(true);
+    }
+
+    if(beg->list_groups.back().tablet_list_pay)
+    {
+        qInfo() << "Create a tablet pays of a group";
+
+        beg->list_groups.back().tablet_list_pay->setParent(beg->page1);
+
+        auto tablet_width = ui->tabWidget->geometry().width() - beg->tablet_list_groups->geometry().width() - shift_x - 30;
+        auto tablet_height = ui->tabWidget->geometry().height() - beg->list_groups.back().tablet_list_tasks->geometry().height() - 130;
+
+        beg->list_groups.back().tablet_list_pay->setObjectName("tablet_list_pay_" + QString::number(builds.size() - 1) + "_" + QString::number(beg->list_groups.size() - 1));
+
+        x = beg->list_groups.back().tablet_list_tasks->geometry().x();
+        y = beg->list_groups.back().tablet_list_tasks->geometry().y() + beg->list_groups.back().tablet_list_tasks->geometry().height() + 10;
+
+        beg->list_groups.back().tablet_list_pay->setGeometry(x, y, tablet_width, tablet_height);
+        //beg->list_groups.back().tablet_list_pay->setColumnCount(columns);
+        beg->list_groups.back().tablet_list_pay->setColumnWidth(0, beg->list_groups.back().tablet_list_tasks->columnWidth(0));
+        beg->list_groups.back().tablet_list_pay->setColumnWidth(1, beg->list_groups.back().tablet_list_tasks->columnWidth(1));
+
+        QStringList name_columns;
+        name_columns << "Наименование выплат" << "1";
+        beg->list_groups.back().tablet_list_pay->setHorizontalHeaderLabels(name_columns);
+
+        beg->list_groups.back().tablet_list_pay->setVisible(true);
     }
 
     int y_btn = beg->tablet_list_groups->geometry().y() + beg->tablet_list_groups->geometry().height() + 10;
@@ -916,6 +943,8 @@ void MainWindow::add_page2()
             builds.back().tablet_adding_work->setColumnWidth(0, 340);
             builds.back().tablet_adding_work->setColumnWidth(3, 110);
 
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(clone_items_tablet()));
             connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_sum()));
         }
 
@@ -939,6 +968,7 @@ void MainWindow::add_page2()
             builds.back().delete_row->setGeometry(shift_x, shift_y_btn, width_btn, height);
             builds.back().delete_row->setText("Удалить строку");
             builds.back().delete_row->setObjectName("pushbutton_delete_row_" + QString::number(builds.size() - 1));
+            builds.back().delete_row->setEnabled(false);
 
             connect(builds.back().delete_row, SIGNAL(clicked()), this, SLOT(edit_tablet_adding_work()));
         }
@@ -972,7 +1002,7 @@ void MainWindow::add_page2()
             builds.back().budget_cnt_auto->setText("0.0");
             builds.back().budget_cnt_auto->setObjectName("lineedit_budget_cnt_auto_" + QString::number(builds.size() - 1));
 
-            connect(builds.back().budget_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
+            //connect(builds.back().budget_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
         }
 
         if(builds.back().budget_executed_auto)
@@ -997,7 +1027,7 @@ void MainWindow::add_page2()
             builds.back().budget_executed_cnt_auto->setText("0.0");
             builds.back().budget_executed_cnt_auto->setObjectName("lineedit_budget_executed_cnt_auto_" + QString::number(builds.size() - 1));
 
-            connect(builds.back().budget_executed_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
+            //connect(builds.back().budget_executed_cnt_auto, SIGNAL(textChanged(QString)), this, SLOT(calculate_total_budget_auto()));
         }
 
         if(builds.back().budget_remains_auto)
@@ -1095,11 +1125,23 @@ void MainWindow::check_first_floor()
             if(beg->first_floor_lived->isChecked())
             {
                 beg->apartments_on_1fl_cnt->setEnabled(true);
+                if(beg->tablet_total_work->rowCount() > 0)
+                {
+                    beg->tablet_total_work->item(2, 1)->setText(QString::number(beg->floors_cnt->value() * beg->entrances_cnt->value()));
+                    beg->tablet_total_work->item(3, 1)->setText(QString::number(beg->floors_cnt->value() * beg->entrances_cnt->value()));
+                    beg->calculated_budget();
+                }
             }
             else
             {
                 beg->apartments_on_1fl_cnt->setEnabled(false);
                 beg->apartments_on_1fl_cnt->setValue(0);
+                if(beg->tablet_total_work->rowCount() > 0)
+                {
+                    beg->tablet_total_work->item(2, 1)->setText(QString::number((beg->floors_cnt->value() - 1) * beg->entrances_cnt->value()));
+                    beg->tablet_total_work->item(3, 1)->setText(QString::number((beg->floors_cnt->value() - 1) * beg->entrances_cnt->value()));
+                    beg->calculated_budget();
+                }
             }
             break;
         }
@@ -1128,17 +1170,7 @@ void MainWindow::calculate_total_apartments()
             beg->apartments_total_cnt->setValue(total);
 
             //calculate_total_budget_auto
-            int total_ap = beg->apartments_total_cnt->value() * beg->total_price_ap_str_cnt->text().toInt();
-            int total_en = beg->entrances_cnt->value() * beg->total_price_ent_str_cnt->text().toInt();
-            int total_price = total_ap + total_en;
-
-            beg->budget_cnt_auto->setText(QString::number(total_price));
-
-            int executed = 0;
-            beg->budget_executed_cnt_auto->setText(QString::number(executed));
-
-            int remains = total_price - executed;
-            beg->budget_remains_cnt_auto->setText(QString::number(remains));
+            beg->calculated_budget();
             break;
         }
     }
@@ -1196,20 +1228,6 @@ void MainWindow::enter_job()
                 beg->tablet_total_work->item(2, col)->setText(QString::number(remain_en));
                 beg->tablet_total_work->item(3, col)->setText(QString::number(remain_en));
             }
-
-            //calculate_total_budget_auto
-            int total_ap = beg->apartments_total_cnt->value() * beg->total_price_ap_str_cnt->text().toInt();
-            int total_en = beg->entrances_cnt->value() * beg->total_price_ent_str_cnt->text().toInt();
-            int total_price = total_ap + total_en;
-
-            beg->budget_cnt_auto->setText(QString::number(total_price));
-
-            int executed = 0;
-            beg->budget_executed_cnt_auto->setText(QString::number(executed));
-
-            int remains = total_price - executed;
-            beg->budget_remains_cnt_auto->setText(QString::number(remains));
-
             break;
         }
     }
@@ -1253,39 +1271,20 @@ void MainWindow::calculate_total_budget_auto()
         if(lineedit_name == beg->total_price_ap_str_cnt->objectName() ||
            lineedit_name == beg->total_price_ent_str_cnt->objectName() )
         {
-            int total_ap = beg->apartments_total_cnt->value() * beg->total_price_ap_str_cnt->text().toInt();
-            int total_en = beg->entrances_cnt->value() * beg->total_price_ent_str_cnt->text().toInt();
-
-            int total_old = beg->budget_cnt_auto->text().toInt();
-            total_old -= beg->get_total_ap_old() + beg->get_total_en_old();
-
-            int total = total_old + (total_ap + total_en);
-
-            beg->set_total_ap_old(total_ap);
-            beg->set_total_en_old(total_en);
-
-            beg->budget_cnt_auto->setText(QString::number(total));
-
-            int executed = beg->budget_executed_cnt_auto->text().toInt();
-            beg->budget_executed_cnt_auto->setText(QString::number(executed));
-
-            int remains = total - executed;
-            beg->budget_remains_cnt_auto->setText(QString::number(remains));
-
-            break;
+            beg->calculated_budget();
         }
 
-        if(lineedit_name == beg->budget_cnt_auto->objectName()          ||
-           lineedit_name == beg->budget_executed_cnt_auto->objectName()  )
-        {
-            int total = beg->budget_cnt_auto->text().toInt();
-            int executed = beg->budget_executed_cnt_auto->text().toInt();
-            int remains = total - executed;
+        // if(lineedit_name == beg->budget_cnt_auto->objectName()          ||
+        //    lineedit_name == beg->budget_executed_cnt_auto->objectName()  )
+        // {
+        //     int total = beg->budget_cnt_auto->text().toInt();
+        //     int executed = beg->budget_executed_cnt_auto->text().toInt();
+        //     int remains = total - executed;
 
-            beg->budget_remains_cnt_auto->setText(QString::number(remains));
+        //     beg->budget_remains_cnt_auto->setText(QString::number(remains));
 
-            break;
-        }
+        //     break;
+        // }
     }
 }
 
@@ -1300,9 +1299,6 @@ void MainWindow::edit_tablet_adding_work()
         if(pushbutton_name == beg->add_row->objectName())
         {
             beg->add_row_lst();
-
-            connect(beg->tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
-            connect(beg->tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(clone_items_tablet()));
 
             break;
         }
@@ -1425,7 +1421,7 @@ void MainWindow::clone_items_tablet()
             if(column == 1)
             {
                 beg->tablet_total_work->item(row_t, column)->setText(beg->tablet_adding_work->item(row, column)->text());
-                beg->tablet_total_work->item(row_t, column + 2)->setText(beg->tablet_adding_work->item(row, column)->text());
+                //beg->tablet_total_work->item(row_t, column + 2)->setText(beg->tablet_adding_work->item(row, column)->text());
             }
             break;
         }
@@ -1451,16 +1447,11 @@ void MainWindow::calculate_sum()
                 }
                 int count = beg->tablet_adding_work->item(row, 1)->text().toInt();
                 int price = beg->tablet_adding_work->item(row, 2)->text().toInt();
-                int sum_old = beg->tablet_adding_work->item(row, 3)->text().toInt();
-
                 int sum = count * price;
 
                 beg->tablet_adding_work->item(row, 3)->setText(QString::number(sum));
-
-                int total = beg->budget_cnt_auto->text().toInt();
-                beg->budget_cnt_auto->setText(QString::number(total + sum - sum_old));
+                beg->calculated_budget();
             }
-
             break;
         }
     }
@@ -1484,6 +1475,7 @@ void MainWindow::tablet_list_tasks_setVisible()
                 emp_beg->button_delete_emp->setVisible(false);
                 emp_beg->button_add_pay->setVisible(false);
                 emp_beg->tablet_list_employees->setVisible(false);
+                emp_beg->tablet_list_pay->setVisible(false);
             }
 
             auto emp_beg = beg->list_groups.begin();
@@ -1497,6 +1489,7 @@ void MainWindow::tablet_list_tasks_setVisible()
                     emp_beg->button_delete_emp->setVisible(true);
                     emp_beg->button_add_pay->setVisible(true);
                     emp_beg->tablet_list_employees->setVisible(true);
+                    emp_beg->tablet_list_pay->setVisible(true);
                 }
             }
 

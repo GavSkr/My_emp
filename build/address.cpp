@@ -222,7 +222,7 @@ void Address::add_row_lst()
     int row = tablet_adding_work->rowCount();
     int row_t = tablet_total_work->rowCount();
 
-    //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+    qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
 
     tablet_adding_work->insertRow(row);
     tablet_total_work->insertRow(row_t);
@@ -231,22 +231,34 @@ void Address::add_row_lst()
     QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
     QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
 
-    //qInfo() << "Size list_tmp " << list_tmp->size();
+    qInfo() << "Size list_tmp " << list_tmp->size();
+
+    if(list_tmp == nullptr)
+    {
+        qInfo() << "list_tmp is nullptr";
+        return;
+    }
 
     list_adding_works.push_back(*list_tmp);
     list_works.push_back(*list_tmp_t);
 
-    //qInfo() << "obj->name " << tablet_adding_work->objectName();
+    qInfo() << "Size list_adding_works " << list_adding_works.size();
+
+    qInfo() << "obj->name " << tablet_adding_work->objectName();
 
     for(int i = 0; i < tablet_adding_work->columnCount(); ++i)
     {
+        qInfo() << "Add item in table begin" << i;
         list_adding_works.back()[i] = new QTableWidgetItem();
+        qInfo() << "Add item in table new QTWI" << i;
+        if(i == 0) list_adding_works.back()[i]->setText("name work");
         if(i != 0) list_adding_works.back()[i]->setText("0");
         if(i == 1) list_adding_works.back()[i]->setTextAlignment(Qt::AlignCenter);
         if(i == 2 || i == 3 ) list_adding_works.back()[i]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-
+        qInfo() << "Add item in table set QTWI" << i << " - row " << tablet_adding_work->rowCount();
+        qInfo() << "Add item in table set QTWI" << i << " - text " << list_adding_works.back()[i]->text() << ";";
         tablet_adding_work->setItem(row, i, list_adding_works.back()[i]);
-        //qInfo() << "Add item in table " << i;
+        qInfo() << "Add item in table end" << i;
     }
 
     for(int i = 0; i < tablet_total_work->columnCount(); ++i)
@@ -261,8 +273,10 @@ void Address::add_row_lst()
         }
 
         tablet_total_work->setItem(row_t, i, list_works.back()[i]);
-        //qInfo() << "Add item in table " << i;
+        qInfo() << "Add item in table " << i;
     }
+
+    if(tablet_adding_work->rowCount() > 0) delete_row->setEnabled(true);
 
     delete list_tmp;
     list_tmp = nullptr;
@@ -275,9 +289,7 @@ void Address::delete_row_lst()
 {
     int row = tablet_adding_work->currentRow();
 
-    int sum = tablet_adding_work->item(row, 3)->text().toInt();
-    int total = budget_cnt_auto->text().toInt();
-    budget_cnt_auto->setText(QString::number(total - sum));
+    if(row == -1) return;
 
     auto beg = list_adding_works.begin();
     //qInfo() << "list_adding_works beg.size() = "<< beg->size();
@@ -330,10 +342,13 @@ void Address::delete_row_lst()
         }
     }
 
-    if(tablet_adding_work->rowCount() == 0) adding_works = false;
+    if(tablet_adding_work->rowCount() == 0)
+    {
+        adding_works = false;
+        delete_row->setEnabled(false);
+    }
+    calculated_budget();
 }
-
-
 
 void Address::fill_tablet_works()
 {
@@ -423,7 +438,6 @@ void Address::fill_tablet_works()
     {
         //qInfo() << "START delete item from LIST_WORK row " << rows;
         //qInfo() << "list_works.size() = " << list_works.size();
-        //for(int i = 0; i < rows; ++i) beg++;
 
         for(int i = 0; i < rows; ++i)
         {
@@ -455,50 +469,13 @@ void Address::fill_tablet_works()
 
 void Address::fill_tablet_list_tasks()
 {
-    int adding_rows = name_tasks.size();
-    int row_t = tablet_total_work->rowCount() + adding_rows;
+    int row_t = tablet_total_work->rowCount();
 
     //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
 
     list_groups.back().tablet_list_tasks->setRowCount(row_t);
 
-    for(int row_i = 0; row_i < adding_rows; ++row_i)
-    {
-
-        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
-
-        //qInfo() << "Size list_tmp " << list_tmp->size();
-
-        list_groups.back().list_tasks.push_back(*qlist_tmp_t);
-
-        //qInfo() << "obj->name " << tablet_adding_work->objectName();
-
-
-        for(int i = 0; i < list_groups.back().tablet_list_tasks->columnCount(); ++i)
-        {
-            list_groups.back().list_tasks.back()[i] = new QTableWidgetItem();
-            if(i == 0)
-            {
-                list_groups.back().list_tasks.back()[i]->setText(name_tasks[row_i]);
-                list_groups.back().list_tasks.back()[i]->setFlags(Qt::ItemIsEnabled);
-            }
-
-            if(i != 0)
-            {
-                list_groups.back().list_tasks.back()[i]->setText("");
-                list_groups.back().list_tasks.back()[i]->setTextAlignment(Qt::AlignCenter);
-            }
-
-            list_groups.back().tablet_list_tasks->setItem(row_i, i, list_groups.back().list_tasks.back()[i]);
-            //qInfo() << "Add item in table " << i;
-        }
-
-        delete qlist_tmp_t;
-        qlist_tmp_t = nullptr;
-    }
-
-
-    for(int row_i = 0; row_i < tablet_total_work->rowCount(); ++row_i)
+        for(int row_i = 0; row_i < tablet_total_work->rowCount(); ++row_i)
     {
 
         QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
@@ -525,15 +502,43 @@ void Address::fill_tablet_list_tasks()
                 list_groups.back().list_tasks.back()[i]->setTextAlignment(Qt::AlignCenter);
             }
 
-            list_groups.back().tablet_list_tasks->setItem(row_i + adding_rows, i, list_groups.back().list_tasks.back()[i]);
+            list_groups.back().tablet_list_tasks->setItem(row_i, i, list_groups.back().list_tasks.back()[i]);
             //qInfo() << "Add item in table " << i;
         }
 
         delete qlist_tmp_t;
         qlist_tmp_t = nullptr;
     }
+}
 
+void Address::calculated_budget()
+{
+    int count_floor = (first_floor_lived->isChecked())? floors_cnt->value() : floors_cnt->value() - 1;
+    int count_entrances = entrances_cnt->value();
+    int count_apartments = apartments_total_cnt->value();
 
+    int price_apartments = total_price_ap_str_cnt->text().toInt();
+    int price_entrances = total_price_ent_str_cnt->text().toInt();
+
+    int sum_entrances = (count_floor * count_entrances) * price_entrances;
+    int sum_apartments = count_apartments * price_apartments;
+
+    int sum_adding_work = 0;
+    if(tablet_adding_work->rowCount() > 0)
+    {
+        for(int i = 0; i < tablet_adding_work->rowCount(); ++i)
+        {
+            sum_adding_work += tablet_adding_work->item(i, 3)->text().toInt();
+        }
+    }
+
+    int sum_total = sum_entrances + sum_apartments + sum_adding_work;
+    budget_cnt_auto->setText(QString::number(sum_total));
+
+    int executed = budget_executed_cnt_auto->text().toInt();
+
+    int remains = sum_total - executed;
+    budget_remains_cnt_auto->setText(QString::number(remains));
 }
 
 QString  Address::get_name()

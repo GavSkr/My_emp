@@ -42,6 +42,9 @@ Employee::Employee(Employee &&other) // r-value
     list_employees = other.list_employees;
     tablet_list_employees = other.tablet_list_employees;
 
+    list_pay = other.list_pay;
+    tablet_list_pay = other.tablet_list_pay;
+
     button_add_emp = other.button_add_emp;
     button_delete_emp = other.button_delete_emp;
     button_add_pay = other.button_add_pay;
@@ -54,6 +57,7 @@ Employee::Employee(Employee &&other) // r-value
 
     other.tablet_list_tasks = nullptr;
     other.tablet_list_employees = nullptr;
+    other.tablet_list_pay = nullptr;
 
     other.button_add_emp = nullptr;
     other.button_delete_emp = nullptr;
@@ -133,22 +137,40 @@ void Employee::delete_employee()
 
 void Employee::add_pay()
 {
+    if(list_tasks.empty()) return;
+
     int col = tablet_list_tasks->columnCount();
     tablet_list_tasks->insertColumn(col);
+    tablet_list_pay->insertColumn(col);
 
     int i = 0;
     for(auto beg = list_tasks.begin(); beg != list_tasks.end(); ++beg, ++i)
     {
         tablet_list_tasks->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
 
-        QTableWidgetItem* tmp = new QTableWidgetItem();
+        QTableWidgetItem* tmp_tasks = new QTableWidgetItem();
 
-        tmp->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+        tmp_tasks->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
         //tmp->setText("add_" + QString::number(i));
-        beg->push_back(tmp);
+        beg->push_back(tmp_tasks);
 
         tablet_list_tasks->setItem(i, col, beg->back());
         tablet_list_tasks->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
+    }
+
+    int j = 0;
+    for(auto beg = list_pay.begin(); beg != list_pay.end(); ++beg, ++j)
+    {
+        tablet_list_pay->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
+
+        QTableWidgetItem* tmp_pay = new QTableWidgetItem();
+
+        tmp_pay->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+        //tmp->setText("add_" + QString::number(i));
+        beg->push_back(tmp_pay);
+
+        tablet_list_pay->setItem(j, col, beg->back());
+        tablet_list_pay->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
     }
 }
 
@@ -156,6 +178,9 @@ void Employee::new_obj()
 {
     tablet_list_tasks = new QTableWidget();
     tablet_list_employees = new QTableWidget();
+    tablet_list_pay = new QTableWidget();
+
+    fill_tablet_list_pay();
 
     item_name = new QTableWidgetItem(name_group);
     item_total_pays = new QTableWidgetItem("0");
@@ -177,6 +202,7 @@ void Employee::clear_mem()
 
     tablet_list_tasks = nullptr;
     tablet_list_employees = nullptr;
+    tablet_list_pay = nullptr;
 
     button_add_emp = nullptr;
     button_delete_emp = nullptr;
@@ -213,8 +239,20 @@ void Employee::delete_mem()
         }
     }
 
+    for(auto beg = list_pay.begin(); beg !=list_pay.end(); beg++)
+    {
+        while(!beg->empty())
+        {
+            delete beg->back();
+            beg->back() = nullptr;
+            beg->pop_back();
+            qInfo() << "delete item from LIST_PAY";
+        }
+    }
+
     delete tablet_list_tasks;
     delete tablet_list_employees;
+    delete tablet_list_pay;
 
     delete button_add_emp;
     delete button_delete_emp;
@@ -225,4 +263,50 @@ void Employee::delete_mem()
 
     delete item_name_emp;
     delete item_total_pays_emp;
+}
+
+void Employee::fill_tablet_list_pay()
+{
+    int row_t = name_pay.size();
+    int col_t = 2;
+
+    //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+
+    tablet_list_pay->setRowCount(row_t);
+    tablet_list_pay->setColumnCount(col_t);
+
+    for(int row_i = 0; row_i < row_t; ++row_i)
+    {
+
+        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(tablet_list_pay->columnCount());
+
+        //qInfo() << "Size list_tmp " << list_tmp->size();
+
+        list_pay.push_back(*qlist_tmp_t);
+
+        //qInfo() << "obj->name " << tablet_adding_work->objectName();
+
+
+        for(int i = 0; i < tablet_list_pay->columnCount(); ++i)
+        {
+            list_pay.back()[i] = new QTableWidgetItem();
+            if(i == 0)
+            {
+                list_pay.back()[i]->setText(name_pay[row_i]);
+                list_pay.back()[i]->setFlags(Qt::ItemIsEnabled);
+            }
+
+            if(i != 0)
+            {
+                list_pay.back()[i]->setText("");
+                list_pay.back()[i]->setTextAlignment(Qt::AlignCenter);
+            }
+
+            tablet_list_pay->setItem(row_i, i, list_pay.back()[i]);
+            //qInfo() << "Add item in table " << i;
+        }
+
+        delete qlist_tmp_t;
+        qlist_tmp_t = nullptr;
+    }
 }

@@ -22,6 +22,8 @@ public:
     QTableWidget *tablet_list_tasks = nullptr;
     std::list<QList<QTableWidgetItem*>> list_employees;
     QTableWidget *tablet_list_employees = nullptr;
+    std::list<QList<QTableWidgetItem*>> list_pay;
+    QTableWidget *tablet_list_pay = nullptr;
 
     QPushButton *button_add_emp = nullptr;
     QPushButton *button_delete_emp = nullptr;
@@ -40,10 +42,12 @@ public:
 private:
     QString name_group;
     //QString last_name;
+    QList<QString> name_pay {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
 
     void new_obj();
     void clear_mem();
     void delete_mem();
+    void fill_tablet_list_pay();
 };
 
 #endif // EMPLOYEE_H

@@ -38,6 +38,7 @@ public:
     void set_total_ap_old(int value){this->total_ap_old = value;};
     void set_total_en_old(int value){this->total_en_old = value;};
     void fill_tablet_list_tasks();
+    void calculated_budget();
 
     QString get_name();
     QString get_address();
