@@ -39,6 +39,9 @@ public:
     void set_total_en_old(int value){this->total_en_old = value;};
     void fill_tablet_list_tasks();
     void calculated_budget();
+    void set_list_price();
+    QList<int> get_list_price();
+    void fill_done_tasks();
 
     QString get_name();
     QString get_address();
@@ -126,6 +129,8 @@ private:
     bool adding_works = false;
     int total_ap_old = 0;
     int total_en_old = 0;
+    QList<int> list_prices;
+    QList<int> done_taks;
 
     void new_obj();
     void clear_mem();

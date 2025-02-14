@@ -174,6 +174,24 @@ void Employee::add_pay()
     }
 }
 
+void Employee::fill_done_tasks()
+{
+    done_taks.clear();
+    for(int i = 0; i < tablet_list_tasks->rowCount(); ++i)
+    {
+        done_taks.push_back(0);
+        for(int j = 1; j < tablet_list_tasks->columnCount(); ++j)
+        {
+            done_taks.back() += tablet_list_tasks->item(i, j)->text().toInt();
+        }
+    }
+}
+
+QList<int> Employee::get_done_tasks()
+{
+    return done_taks;
+}
+
 void Employee::new_obj()
 {
     tablet_list_tasks = new QTableWidget();

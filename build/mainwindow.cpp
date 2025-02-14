@@ -150,6 +150,8 @@ void MainWindow::add_group()
         }
 
         beg->list_groups.back().tablet_list_tasks->setVisible(true);
+        connect(beg->list_groups.back().tablet_list_tasks, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols_g()));
+        connect(beg->list_groups.back().tablet_list_tasks, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_pay()));
     }
 
     if(beg->list_groups.back().tablet_list_pay)
@@ -176,6 +178,7 @@ void MainWindow::add_group()
         beg->list_groups.back().tablet_list_pay->setHorizontalHeaderLabels(name_columns);
 
         beg->list_groups.back().tablet_list_pay->setVisible(true);
+        connect(beg->list_groups.back().tablet_list_pay, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols_g()));
     }
 
     int y_btn = beg->tablet_list_groups->geometry().y() + beg->tablet_list_groups->geometry().height() + 10;
@@ -253,6 +256,7 @@ void MainWindow::add_group()
 
         beg->list_groups.back().tablet_list_employees->setHorizontalHeaderLabels(name_columns);
         beg->list_groups.back().tablet_list_employees->setVisible(true);
+        connect(beg->list_groups.back().tablet_list_employees, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols_g()));
     }
 
     (beg->tablet_list_groups->rowCount() > 0)? beg->button_delete_emp->setEnabled(true) : beg->button_delete_emp->setEnabled(false);
@@ -306,12 +310,14 @@ void MainWindow::change_page()
         beg->btn_page->setText("<");
         beg->page1->setVisible(false);
         beg->page2->setVisible(true);
+        beg->fill_done_tasks();
     }
     else if(beg->page2->isVisible())
     {
         beg->btn_page->setText(">");
         beg->page1->setVisible(true);
         beg->page2->setVisible(false);
+        beg->set_list_price();
     }
 }
 
@@ -382,6 +388,7 @@ void MainWindow::add_page1()
 
         builds.back().tablet_list_groups->setHorizontalHeaderLabels(name_columns);
 
+        connect(builds.back().tablet_list_groups, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
         connect(builds.back().tablet_list_groups, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(tablet_list_tasks_setVisible()));
     }
 }
@@ -1397,6 +1404,69 @@ void MainWindow::check_symbols()
             }
             break;
         }
+        if(w_name == beg->tablet_list_groups->objectName())
+        {
+            if(beg->tablet_list_groups->currentRow() >= 0)
+            {
+                int row = beg->tablet_list_groups->currentRow();
+                int column = beg->tablet_list_groups->currentColumn();
+
+                if(column != 0)
+                    beg->tablet_list_groups->item(row, column)->setText(adding_funcs::delete_letter(beg->tablet_list_groups->item(row, column)->text()));
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::check_symbols_g()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    //int index = 0;
+    for(; beg != builds.end(); ++beg)//, ++index)
+    {
+        auto beg_groups = beg->list_groups.begin();
+        for(; beg_groups != beg->list_groups.end(); ++beg_groups)//, ++index)
+        {
+            if(w_name == beg_groups->tablet_list_tasks->objectName())
+            {
+                if(beg_groups->tablet_list_tasks->currentRow() >= 0)
+                {
+                    int row = beg_groups->tablet_list_tasks->currentRow();
+                    int column = beg_groups->tablet_list_tasks->currentColumn();
+
+                    if(column != 0)
+                        beg_groups->tablet_list_tasks->item(row, column)->setText(adding_funcs::delete_letter(beg_groups->tablet_list_tasks->item(row, column)->text()));
+                }
+                break;
+            }
+            if(w_name == beg_groups->tablet_list_employees->objectName())
+            {
+                if(beg_groups->tablet_list_employees->currentRow() >= 0)
+                {
+                    int row = beg_groups->tablet_list_employees->currentRow();
+                    int column = beg_groups->tablet_list_employees->currentColumn();
+
+                    if(column != 0)
+                        beg_groups->tablet_list_employees->item(row, column)->setText(adding_funcs::delete_letter(beg_groups->tablet_list_employees->item(row, column)->text()));
+                }
+                break;
+            }
+            if(w_name == beg_groups->tablet_list_pay->objectName())
+            {
+                if(beg_groups->tablet_list_pay->currentRow() >= 0)
+                {
+                    int row = beg_groups->tablet_list_pay->currentRow();
+                    int column = beg_groups->tablet_list_pay->currentColumn();
+
+                    if(column != 0)
+                        beg_groups->tablet_list_pay->item(row, column)->setText(adding_funcs::delete_letter(beg_groups->tablet_list_pay->item(row, column)->text()));
+                }
+                break;
+            }
+        }
     }
 }
 
@@ -1549,6 +1619,103 @@ void MainWindow::add_pay()
             if(w_name == beg_groups->button_add_pay->objectName())
             {
                 beg_groups->add_pay();
+                break;
+            }
+        }
+    }
+}
+
+void MainWindow::calculate_pay()
+{
+    QString w_name = QObject::sender()->objectName();
+
+    auto beg = builds.begin();
+    for(; beg != builds.end(); ++beg)
+    {
+        auto beg_groups = beg->list_groups.begin();
+        for(; beg_groups != beg->list_groups.end(); ++beg_groups)
+        {
+            if(w_name == beg_groups->tablet_list_tasks->objectName())
+            {
+                int row = beg_groups->tablet_list_tasks->currentRow();
+                int column = beg_groups->tablet_list_tasks->currentColumn();
+
+                qInfo() << "row = " << row << ", col = " << column;
+
+                if(column <= 0 || row < 0) return;
+
+                QList<int> prices = beg->get_list_price();
+
+                for(int i = 0; i < prices.size(); ++i)
+                    qInfo() << "prices[] = " << prices[i];
+
+                int pay = 0;
+                int pay_real = 0;
+
+                for(int i = 0; i < beg_groups->tablet_list_tasks->rowCount(); ++i)
+                {
+                    if(beg_groups->tablet_list_tasks->item(i, column)->text() != "")
+                    {
+                        qInfo() << "count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
+                        pay += prices[i] * beg_groups->tablet_list_tasks->item(i, column)->text().toInt();
+                    }
+                    else
+                    {
+                        qInfo() << "Clear count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
+                    }
+                }
+
+                qInfo() << "pay = " << pay;
+
+                beg_groups->tablet_list_pay->item(1, column)->setText(QString::number(pay));
+
+                if(beg_groups->tablet_list_pay->item(2, column)->text() == "")
+                {
+                    beg_groups->tablet_list_pay->item(2, column)->setText(QString::number(pay));
+                    beg_groups->tablet_list_pay->item(3, column)->setText("0");
+                }
+                else
+                {
+                    pay_real = beg_groups->tablet_list_pay->item(2, column)->text().toInt();
+                    beg_groups->tablet_list_pay->item(3, column)->setText(QString::number(pay - pay_real));
+                }
+
+                auto row_group = beg->tablet_list_groups->currentRow();
+
+                if(row_group == -1) row_group = 0;
+
+                int pay_group = 0;
+                for(int i = 1; i < beg_groups->tablet_list_pay->columnCount(); ++i)
+                {
+                    pay_group += beg_groups->tablet_list_pay->item(1, i)->text().toInt();
+                }
+                beg->tablet_list_groups->item(row_group, 1)->setText(QString::number(pay_group));
+
+                if(beg_groups->tablet_list_employees->rowCount() > 0)
+                {
+                    for(int i = 0; i < beg_groups->tablet_list_employees->rowCount(); ++i)
+                    {
+                        if(i == 0)
+                        {
+                            int pay_emp_fst = 0;
+                            if(beg_groups->tablet_list_employees->item(i, 1)->text() != "")
+                                pay_emp_fst = beg_groups->tablet_list_employees->item(i, 1)->text().toInt();
+
+                            pay_emp_fst += pay_real / beg_groups->tablet_list_employees->rowCount() + pay_real % beg_groups->tablet_list_employees->rowCount();
+                            beg_groups->tablet_list_employees->item(i, 1)->setText(QString::number(pay_emp_fst));
+                        }
+                        else
+                        {
+                            int pay_emp = 0;
+                            if(beg_groups->tablet_list_employees->item(i, 1)->text() != "")
+                                pay_emp = beg_groups->tablet_list_employees->item(i, 1)->text().toInt();
+
+                            pay_emp += pay_real / beg_groups->tablet_list_employees->rowCount();
+                            beg_groups->tablet_list_employees->item(i, 1)->setText(QString::number(pay_emp));
+                        }
+                    }
+                }
+
                 break;
             }
         }

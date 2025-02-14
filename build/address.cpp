@@ -220,16 +220,11 @@ void Address::set_address(QString new_address)
 void Address::add_row_lst()
 {
     int row = tablet_adding_work->rowCount();
-    int row_t = tablet_total_work->rowCount();
 
     qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
 
     tablet_adding_work->insertRow(row);
-    tablet_total_work->insertRow(row_t);
-    adding_works = true;
-
     QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
-    QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
 
     qInfo() << "Size list_tmp " << list_tmp->size();
 
@@ -240,15 +235,14 @@ void Address::add_row_lst()
     }
 
     list_adding_works.push_back(*list_tmp);
-    list_works.push_back(*list_tmp_t);
 
     qInfo() << "Size list_adding_works " << list_adding_works.size();
-
     qInfo() << "obj->name " << tablet_adding_work->objectName();
 
     for(int i = 0; i < tablet_adding_work->columnCount(); ++i)
     {
         qInfo() << "Add item in table begin" << i;
+
         list_adding_works.back()[i] = new QTableWidgetItem();
         qInfo() << "Add item in table new QTWI" << i;
         if(i == 0) list_adding_works.back()[i]->setText("name work");
@@ -257,9 +251,18 @@ void Address::add_row_lst()
         if(i == 2 || i == 3 ) list_adding_works.back()[i]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
         qInfo() << "Add item in table set QTWI" << i << " - row " << tablet_adding_work->rowCount();
         qInfo() << "Add item in table set QTWI" << i << " - text " << list_adding_works.back()[i]->text() << ";";
+
         tablet_adding_work->setItem(row, i, list_adding_works.back()[i]);
         qInfo() << "Add item in table end" << i;
     }
+
+    delete list_tmp;
+    list_tmp = nullptr;
+
+    int row_t = tablet_total_work->rowCount();
+    tablet_total_work->insertRow(row_t);
+    QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
+    list_works.push_back(*list_tmp_t);
 
     for(int i = 0; i < tablet_total_work->columnCount(); ++i)
     {
@@ -277,9 +280,7 @@ void Address::add_row_lst()
     }
 
     if(tablet_adding_work->rowCount() > 0) delete_row->setEnabled(true);
-
-    delete list_tmp;
-    list_tmp = nullptr;
+    adding_works = true;
 
     delete list_tmp_t;
     list_tmp_t = nullptr;
@@ -539,6 +540,53 @@ void Address::calculated_budget()
 
     int remains = sum_total - executed;
     budget_remains_cnt_auto->setText(QString::number(remains));
+}
+
+void Address::set_list_price()
+{
+    list_prices.clear();
+    list_prices.push_back(first_stage_ap_str_cnt->text().toInt());
+    list_prices.push_back(second_stage_ap_str_cnt->text().toInt());
+
+    list_prices.push_back(first_stage_ent_str_cnt->text().toInt());
+    list_prices.push_back(second_stage_ent_str_cnt->text().toInt());
+
+    for(int i = 0; i < tablet_adding_work->rowCount(); ++i)
+    {
+        list_prices.push_back(tablet_adding_work->item(i, 3)->text().toInt());
+    }
+}
+
+QList<int> Address::get_list_price()
+{
+    return list_prices;
+}
+
+void Address::fill_done_tasks()
+{
+    int  budget_executed = 0;
+    done_taks = QList<int>(list_works.size(), 0);
+    for(auto beg = list_groups.begin(); beg != list_groups.end(); ++beg)
+    {
+        beg->fill_done_tasks();
+        QList<int> lst = beg->get_done_tasks();
+        for(int j = 0; j < lst.size(); ++j)
+        {
+            done_taks[j] += lst[j];
+        }
+    }
+
+    for(int i = 0; i < done_taks.size(); ++i)
+    {
+        int cnt = tablet_total_work->item(i, 1)->text().toInt();
+
+        tablet_total_work->item(i, 2)->setText(QString::number(done_taks[i]));
+        tablet_total_work->item(i, 3)->setText(QString::number(cnt - done_taks[i]));
+        budget_executed += done_taks[i] * list_prices[i];
+    }
+    budget_executed_cnt_auto->setText(QString::number(budget_executed));
+    int budget = budget_cnt_auto->text().toInt();
+    budget_remains_cnt_auto->setText(QString::number(budget - budget_executed));
 }
 
 QString  Address::get_name()

@@ -38,11 +38,15 @@ public:
     void add_employee();
     void delete_employee();
     void add_pay();
+    void calculate_pay();
+    void fill_done_tasks();
+    QList<int> get_done_tasks();
 
 private:
     QString name_group;
     //QString last_name;
-    QList<QString> name_pay {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
+    QList<QString> name_pay {"Дата выплаты", "Расчётная сумма выплаты", "Фактическая сумма выплаты","Остаток выплаты"};
+    QList<int> done_taks;
 
     void new_obj();
     void clear_mem();

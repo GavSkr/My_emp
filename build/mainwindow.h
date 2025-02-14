@@ -40,12 +40,14 @@ private slots:
     void calculate_total_budget_auto();
     void edit_tablet_adding_work();
     void check_symbols();
+    void check_symbols_g();
     void clone_items_tablet();
     void calculate_sum();
     void tablet_list_tasks_setVisible();
     void add_employee();
     void delete_employee();
     void add_pay();
+    void calculate_pay();
 
 
 private:
