@@ -57,7 +57,7 @@ public:
     QPushButton *button_add_emp = nullptr;
     QPushButton *button_delete_emp = nullptr;
     QTableWidget *tablet_list_groups = nullptr;
-    QTableWidget *tablet_pay_groups = nullptr;
+    //QTableWidget *tablet_pay_groups = nullptr;
     //====================================}
 
     QGroupBox *page2 = nullptr;
@@ -124,7 +124,7 @@ private:
     QString name = "";
     QString address = "";
     QList<QString> name_works {"Квартира 1 этап", "Квартира 2 этап","Коридор 1 этап","Коридор 2 этап"};
-    QList<QString> name_tasks {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
+    //QList<QString> name_tasks {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
     bool general_works = false;
     bool adding_works = false;
     int total_ap_old = 0;

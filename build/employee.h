@@ -18,11 +18,11 @@ public:
     QString get_full_name();
     void set_name(QString full_name);
 
-    std::list<QList<QTableWidgetItem*>> list_tasks;
+    std::list<std::list<QTableWidgetItem*>> list_tasks;
     QTableWidget *tablet_list_tasks = nullptr;
-    std::list<QList<QTableWidgetItem*>> list_employees;
+    std::list<std::list<QTableWidgetItem*>> list_employees;
     QTableWidget *tablet_list_employees = nullptr;
-    std::list<QList<QTableWidgetItem*>> list_pay;
+    std::list<std::list<QTableWidgetItem*>> list_pay;
     QTableWidget *tablet_list_pay = nullptr;
 
     QPushButton *button_add_emp = nullptr;

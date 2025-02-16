@@ -86,19 +86,20 @@ void Employee::add_employee()
     auto row = tablet_list_employees->rowCount();
     tablet_list_employees->insertRow(row);
 
-    QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_list_employees->columnCount());
+    std::list<QTableWidgetItem*> *list_tmp = new std::list<QTableWidgetItem*>(tablet_list_employees->columnCount());
     list_employees.push_back(*list_tmp);
 
-    for(int i = 0; i < tablet_list_employees->columnCount(); ++i)
+    int col = 0;
+    for(auto beg = list_employees.back().begin(); beg != list_employees.back().end(); ++beg, ++col)
     {
-        list_employees.back()[i] = new QTableWidgetItem();
-        if(i != 0)
+        *beg = new QTableWidgetItem();
+        if(col != 0)
         {
-            list_employees.back()[i]->setText("0");
-            list_employees.back()[i]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            (*beg)->setText("0");
+            (*beg)->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
         }
 
-        tablet_list_employees->setItem(row, i, list_employees.back()[i]);
+        tablet_list_employees->setItem(row, col, *beg);
         //qInfo() << "Add item in table " << i;
     }
 
@@ -143,8 +144,8 @@ void Employee::add_pay()
     tablet_list_tasks->insertColumn(col);
     tablet_list_pay->insertColumn(col);
 
-    int i = 0;
-    for(auto beg = list_tasks.begin(); beg != list_tasks.end(); ++beg, ++i)
+    int row = 0;
+    for(auto beg = list_tasks.begin(); beg != list_tasks.end(); ++beg, ++row)
     {
         tablet_list_tasks->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
 
@@ -154,12 +155,12 @@ void Employee::add_pay()
         //tmp->setText("add_" + QString::number(i));
         beg->push_back(tmp_tasks);
 
-        tablet_list_tasks->setItem(i, col, beg->back());
+        tablet_list_tasks->setItem(row, col, beg->back());
         tablet_list_tasks->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
     }
 
-    int j = 0;
-    for(auto beg = list_pay.begin(); beg != list_pay.end(); ++beg, ++j)
+    row = 0;
+    for(auto beg = list_pay.begin(); beg != list_pay.end(); ++beg, ++row)
     {
         tablet_list_pay->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
 
@@ -169,7 +170,7 @@ void Employee::add_pay()
         //tmp->setText("add_" + QString::number(i));
         beg->push_back(tmp_pay);
 
-        tablet_list_pay->setItem(j, col, beg->back());
+        tablet_list_pay->setItem(row, col, beg->back());
         tablet_list_pay->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
     }
 }
@@ -296,7 +297,7 @@ void Employee::fill_tablet_list_pay()
     for(int row_i = 0; row_i < row_t; ++row_i)
     {
 
-        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(tablet_list_pay->columnCount());
+        std::list<QTableWidgetItem*> *qlist_tmp_t = new std::list<QTableWidgetItem*>(tablet_list_pay->columnCount());
 
         //qInfo() << "Size list_tmp " << list_tmp->size();
 
@@ -304,23 +305,25 @@ void Employee::fill_tablet_list_pay()
 
         //qInfo() << "obj->name " << tablet_adding_work->objectName();
 
+        int col = 0;
 
-        for(int i = 0; i < tablet_list_pay->columnCount(); ++i)
+        for(auto item : list_pay.back())
         {
-            list_pay.back()[i] = new QTableWidgetItem();
-            if(i == 0)
+            item = new QTableWidgetItem();
+            if(col == 0)
             {
-                list_pay.back()[i]->setText(name_pay[row_i]);
-                list_pay.back()[i]->setFlags(Qt::ItemIsEnabled);
+                item->setText(name_pay[row_i]);
+                item->setFlags(Qt::ItemIsEnabled);
             }
 
-            if(i != 0)
+            if(col != 0)
             {
-                list_pay.back()[i]->setText("");
-                list_pay.back()[i]->setTextAlignment(Qt::AlignCenter);
+                item->setText("");
+                item->setTextAlignment(Qt::AlignCenter);
             }
 
-            tablet_list_pay->setItem(row_i, i, list_pay.back()[i]);
+            tablet_list_pay->setItem(row_i, col, item);
+            ++col;
             //qInfo() << "Add item in table " << i;
         }
 

@@ -232,8 +232,8 @@ void MainWindow::add_group()
     {
         qInfo() << "Create a tablet list of an employee";
 
-        beg->list_groups.back().tablet_list_employees->setItem(row, 0, beg->list_groups.back().item_name_emp);
-        beg->list_groups.back().tablet_list_employees->setItem(row, 1, beg->list_groups.back().item_total_pays_emp);
+        // beg->list_groups.back().tablet_list_employees->setItem(row, 0, beg->list_groups.back().item_name_emp);
+        // beg->list_groups.back().tablet_list_employees->setItem(row, 1, beg->list_groups.back().item_total_pays_emp);
 
         beg->list_groups.back().tablet_list_employees->setParent(beg->page1);
 
@@ -933,28 +933,6 @@ void MainWindow::add_page2()
             builds.back().adding_work->setObjectName("groupbox_adding_work_" + QString::number(builds.size() - 1));
         }
 
-        if(builds.back().tablet_adding_work)
-        {
-            builds.back().tablet_adding_work->setParent(builds.back().adding_work);
-
-            builds.back().tablet_adding_work->setGeometry(10, 20, width_t, height_t);
-            builds.back().tablet_adding_work->setObjectName("tablet_tablet_adding_work_" + QString::number(builds.size() - 1));
-
-            builds.back().tablet_adding_work->setColumnCount(columns);
-            //builds.back().tablet_adding_work->setRowCount(rows);
-
-            QStringList name_columns;
-            name_columns << "Наименование" << "Кол-во" << "Цена" << "Сумма";
-
-            builds.back().tablet_adding_work->setHorizontalHeaderLabels(name_columns);
-            builds.back().tablet_adding_work->setColumnWidth(0, 340);
-            builds.back().tablet_adding_work->setColumnWidth(3, 110);
-
-            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
-            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(clone_items_tablet()));
-            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_sum()));
-        }
-
         if(builds.back().add_row)
         {
             builds.back().add_row->setParent(builds.back().adding_work);
@@ -978,6 +956,28 @@ void MainWindow::add_page2()
             builds.back().delete_row->setEnabled(false);
 
             connect(builds.back().delete_row, SIGNAL(clicked()), this, SLOT(edit_tablet_adding_work()));
+        }
+
+        if(builds.back().tablet_adding_work)
+        {
+            builds.back().tablet_adding_work->setParent(builds.back().adding_work);
+
+            builds.back().tablet_adding_work->setGeometry(10, 20, width_t, height_t);
+            builds.back().tablet_adding_work->setObjectName("tablet_tablet_adding_work_" + QString::number(builds.size() - 1));
+
+            builds.back().tablet_adding_work->setColumnCount(columns);
+            builds.back().tablet_adding_work->setRowCount(0);
+
+            QStringList name_columns;
+            name_columns << "Наименование" << "Кол-во" << "Цена" << "Сумма";
+
+            builds.back().tablet_adding_work->setHorizontalHeaderLabels(name_columns);
+            builds.back().tablet_adding_work->setColumnWidth(0, 340);
+            builds.back().tablet_adding_work->setColumnWidth(3, 110);
+
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(clone_items_tablet()));
+            connect(builds.back().tablet_adding_work, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_sum()));
         }
     }
 
@@ -1280,18 +1280,6 @@ void MainWindow::calculate_total_budget_auto()
         {
             beg->calculated_budget();
         }
-
-        // if(lineedit_name == beg->budget_cnt_auto->objectName()          ||
-        //    lineedit_name == beg->budget_executed_cnt_auto->objectName()  )
-        // {
-        //     int total = beg->budget_cnt_auto->text().toInt();
-        //     int executed = beg->budget_executed_cnt_auto->text().toInt();
-        //     int remains = total - executed;
-
-        //     beg->budget_remains_cnt_auto->setText(QString::number(remains));
-
-        //     break;
-        // }
     }
 }
 
@@ -1482,7 +1470,10 @@ void MainWindow::clone_items_tablet()
             int row = beg->tablet_adding_work->currentRow();
             int column = beg->tablet_adding_work->currentColumn();
 
-            int row_t = row + (beg->tablet_total_work->rowCount() - beg->tablet_adding_work->rowCount());
+            int row_total = beg->tablet_total_work->rowCount();
+            int row_adding = beg->tablet_adding_work->rowCount();
+
+            int row_t = row + (row_total - row_adding);
 
             if(column == 0)
             {
@@ -1673,6 +1664,7 @@ void MainWindow::calculate_pay()
                 {
                     beg_groups->tablet_list_pay->item(2, column)->setText(QString::number(pay));
                     beg_groups->tablet_list_pay->item(3, column)->setText("0");
+                    pay_real = pay;
                 }
                 else
                 {
@@ -1685,9 +1677,10 @@ void MainWindow::calculate_pay()
                 if(row_group == -1) row_group = 0;
 
                 int pay_group = 0;
-                for(int i = 1; i < beg_groups->tablet_list_pay->columnCount(); ++i)
+                for(int col = 1; col < beg_groups->tablet_list_pay->columnCount(); ++col)
                 {
-                    pay_group += beg_groups->tablet_list_pay->item(1, i)->text().toInt();
+                    if(!beg_groups->tablet_list_pay->item(1, col)) break;
+                    pay_group += beg_groups->tablet_list_pay->item(1, col)->text().toInt();
                 }
                 beg->tablet_list_groups->item(row_group, 1)->setText(QString::number(pay_group));
 

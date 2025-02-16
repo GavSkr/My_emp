@@ -55,7 +55,7 @@ Address::Address(Address &&other) // r-value
     button_add_emp = other.button_add_emp;
     button_delete_emp = other.button_delete_emp;
     tablet_list_groups = other.tablet_list_groups;
-    tablet_pay_groups = other.tablet_pay_groups;
+    //tablet_pay_groups = other.tablet_pay_groups;
     //====================================}
 
     page2 = other.page2;
@@ -126,7 +126,7 @@ Address::Address(Address &&other) // r-value
     other.button_add_emp = nullptr;
     other.button_delete_emp = nullptr;
     other.tablet_list_groups = nullptr;
-    other.tablet_pay_groups = nullptr;
+    //other.tablet_pay_groups = nullptr;
     //====================================}
 
     other.page2 = nullptr;
@@ -219,46 +219,6 @@ void Address::set_address(QString new_address)
 
 void Address::add_row_lst()
 {
-    int row = tablet_adding_work->rowCount();
-
-    qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
-
-    tablet_adding_work->insertRow(row);
-    QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
-
-    qInfo() << "Size list_tmp " << list_tmp->size();
-
-    if(list_tmp == nullptr)
-    {
-        qInfo() << "list_tmp is nullptr";
-        return;
-    }
-
-    list_adding_works.push_back(*list_tmp);
-
-    qInfo() << "Size list_adding_works " << list_adding_works.size();
-    qInfo() << "obj->name " << tablet_adding_work->objectName();
-
-    for(int i = 0; i < tablet_adding_work->columnCount(); ++i)
-    {
-        qInfo() << "Add item in table begin" << i;
-
-        list_adding_works.back()[i] = new QTableWidgetItem();
-        qInfo() << "Add item in table new QTWI" << i;
-        if(i == 0) list_adding_works.back()[i]->setText("name work");
-        if(i != 0) list_adding_works.back()[i]->setText("0");
-        if(i == 1) list_adding_works.back()[i]->setTextAlignment(Qt::AlignCenter);
-        if(i == 2 || i == 3 ) list_adding_works.back()[i]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-        qInfo() << "Add item in table set QTWI" << i << " - row " << tablet_adding_work->rowCount();
-        qInfo() << "Add item in table set QTWI" << i << " - text " << list_adding_works.back()[i]->text() << ";";
-
-        tablet_adding_work->setItem(row, i, list_adding_works.back()[i]);
-        qInfo() << "Add item in table end" << i;
-    }
-
-    delete list_tmp;
-    list_tmp = nullptr;
-
     int row_t = tablet_total_work->rowCount();
     tablet_total_work->insertRow(row_t);
     QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
@@ -279,11 +239,53 @@ void Address::add_row_lst()
         qInfo() << "Add item in table " << i;
     }
 
-    if(tablet_adding_work->rowCount() > 0) delete_row->setEnabled(true);
-    adding_works = true;
-
     delete list_tmp_t;
     list_tmp_t = nullptr;
+
+
+    int row = tablet_adding_work->rowCount();
+
+    //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+
+    tablet_adding_work->insertRow(row);
+    QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
+
+    //qInfo() << "Size list_tmp " << list_tmp->size();
+
+    if(list_tmp == nullptr)
+    {
+        //qInfo() << "list_tmp is nullptr";
+        return;
+    }
+
+    list_adding_works.push_back(*list_tmp);
+
+    //qInfo() << "Size list_adding_works " << list_adding_works.size();
+    //qInfo() << "obj->name " << tablet_adding_work->objectName();
+
+    for(int col = 0; col < tablet_adding_work->columnCount(); ++col)
+    {
+        //qInfo() << "Add item in table begin" << col;
+
+        list_adding_works.back()[col] = new QTableWidgetItem();
+        tablet_adding_work->setItem(row, col, list_adding_works.back()[col]);
+
+        //qInfo() << "Add item in table new QTWI" << col;
+        if(col == 0) list_adding_works.back()[col]->setText("name work");
+        if(col != 0) list_adding_works.back()[col]->setText("0");
+        if(col == 1) list_adding_works.back()[col]->setTextAlignment(Qt::AlignCenter);
+        if(col == 2 || col == 3 ) list_adding_works.back()[col]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+        //qInfo() << "Add item in table set QTWI col: " << col << " - row: " << row << " | count row:" << tablet_adding_work->rowCount();
+        //qInfo() << "Add item in table set QTWI col: " << col << " - text " << list_adding_works.back()[col]->text() << ";";
+
+        //qInfo() << "Add item in table end" << col;
+    }
+
+    delete list_tmp;
+    list_tmp = nullptr;
+
+    if(tablet_adding_work->rowCount() > 0) delete_row->setEnabled(true);
+    adding_works = true;
 }
 
 void Address::delete_row_lst()
@@ -479,7 +481,7 @@ void Address::fill_tablet_list_tasks()
         for(int row_i = 0; row_i < tablet_total_work->rowCount(); ++row_i)
     {
 
-        QList<QTableWidgetItem*> *qlist_tmp_t = new QList<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
+        std::list<QTableWidgetItem*> *qlist_tmp_t = new std::list<QTableWidgetItem*>(list_groups.back().tablet_list_tasks->columnCount());
 
         //qInfo() << "Size list_tmp " << list_tmp->size();
 
@@ -487,23 +489,24 @@ void Address::fill_tablet_list_tasks()
 
         //qInfo() << "obj->name " << tablet_adding_work->objectName();
 
-
-        for(int i = 0; i < list_groups.back().tablet_list_tasks->columnCount(); ++i)
+        int col = 0;
+        for(auto item : list_groups.back().list_tasks.back())
         {
-            list_groups.back().list_tasks.back()[i] = new QTableWidgetItem();
-            if(i == 0)
+            item = new QTableWidgetItem();
+            if(col == 0)
             {
-                list_groups.back().list_tasks.back()[i]->setText(tablet_total_work->item(row_i, i)->text());
-                list_groups.back().list_tasks.back()[i]->setFlags(Qt::ItemIsEnabled);
+                item->setText(tablet_total_work->item(row_i, col)->text());
+                item->setFlags(Qt::ItemIsEnabled);
             }
 
-            if(i != 0)
+            if(col != 0)
             {
-                list_groups.back().list_tasks.back()[i]->setText("");
-                list_groups.back().list_tasks.back()[i]->setTextAlignment(Qt::AlignCenter);
+                item->setText("");
+                item->setTextAlignment(Qt::AlignCenter);
             }
 
-            list_groups.back().tablet_list_tasks->setItem(row_i, i, list_groups.back().list_tasks.back()[i]);
+            list_groups.back().tablet_list_tasks->setItem(row_i, col, item);
+            ++col;
             //qInfo() << "Add item in table " << i;
         }
 
@@ -525,11 +528,24 @@ void Address::calculated_budget()
     int sum_apartments = count_apartments * price_apartments;
 
     int sum_adding_work = 0;
+    int row_count = tablet_adding_work->rowCount();
+
+    //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->rowCount() = " << row_count;
+
     if(tablet_adding_work->rowCount() > 0)
     {
         for(int i = 0; i < tablet_adding_work->rowCount(); ++i)
         {
-            sum_adding_work += tablet_adding_work->item(i, 3)->text().toInt();
+            //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->item(" << i << ", 3)->text() start step";
+            if(!tablet_adding_work->item(i, 3))
+            {
+                //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->item(" << i << ", 3)->text() is NULL";
+                break;
+            }
+            //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->item(" << i << ", 3)->text() " << tablet_adding_work->item(i, 3)->text();
+            //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->item(" << i << ", 3)->text() next step";
+            QString tmp = "1"; //tablet_adding_work->item(i, 3)->text();
+            sum_adding_work += tmp.toInt();
         }
     }
 
@@ -609,7 +625,7 @@ void Address::new_obj()
     button_add_emp = new QPushButton();
     button_delete_emp = new QPushButton();
     tablet_list_groups = new QTableWidget();
-    tablet_pay_groups = new QTableWidget();
+    //tablet_pay_groups = new QTableWidget();
     //====================================}
 
     page2 = new QGroupBox();
@@ -685,7 +701,7 @@ void Address::clear_mem()
     button_add_emp = nullptr;
     button_delete_emp = nullptr;
     tablet_list_groups = nullptr;
-    tablet_pay_groups = nullptr;
+    //tablet_pay_groups = nullptr;
     //====================================}
 
     page2 = nullptr;
@@ -781,7 +797,7 @@ void Address::delete_mem()
     delete button_add_emp;
     delete button_delete_emp;
     delete tablet_list_groups;
-    delete tablet_pay_groups;
+    //delete tablet_pay_groups;
     //====================================}
 
     delete page2;
