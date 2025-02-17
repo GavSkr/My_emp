@@ -4,6 +4,7 @@
 #include <QString>
 #include <QTableWidget>
 #include <QPushButton>
+#include <QDateEdit>
 
 class Employee
 {
@@ -34,6 +35,8 @@ public:
 
     QTableWidgetItem* item_name_emp = nullptr;
     QTableWidgetItem* item_total_pays_emp = nullptr;
+
+    std::list<QDateEdit*> calendar;
 
     void add_employee();
     void delete_employee();

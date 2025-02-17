@@ -49,6 +49,7 @@ private slots:
     void add_pay();
     void calculate_pay();
 
+    void on_Button_delete_address_clicked();
 
 private:
     Ui::MainWindow *ui;

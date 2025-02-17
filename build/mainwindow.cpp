@@ -39,10 +39,12 @@ void MainWindow::on_Button_add_address_clicked()
     Address adrs;
     builds.push_back(adrs);
 
+    int index = 0;
     if(builds.back().tab_page)
     {
         ui->tabWidget->addTab(builds.back().tab_page, builds.back().get_name());
         builds.back().tab_page->setObjectName("tab_page_" + QString::number(builds.size() - 1));
+        index = ui->tabWidget->count();
     }
 
     add_page1();
@@ -67,7 +69,34 @@ void MainWindow::on_Button_add_address_clicked()
         ui->tabWidget->setVisible(true);
     }
 
-    ui->tabWidget->setCurrentIndex(builds.size() - 1);
+    //ui->tabWidget->setCurrentIndex(builds.size() - 1);
+    ui->tabWidget->setCurrentIndex(index - 1);
+}
+
+void MainWindow::on_Button_delete_address_clicked()
+{
+    auto inx_tab = ui->tabWidget->currentIndex();
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): inxdex tab = " << inx_tab;
+
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
+
+    int inx_beg = 0;
+    for(auto beg = builds.begin(); beg != builds.end(); ++beg, ++inx_beg)
+    {
+        if(inx_beg == inx_tab)
+        {
+            qInfo() << "MainWindow::on_Button_delete_address_clicked(): inxdex beg = " << inx_beg;
+            builds.erase(beg);
+            qInfo() << "MainWindow::on_Button_delete_address_clicked(): erase builds";
+            break;
+        }
+    }
+
+    //ui->tabWidget->removeTab(inx_tab);
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): remove tab";
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
+    qInfo() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
 }
 
 void MainWindow::on_Button_exit_clicked()
@@ -1631,7 +1660,7 @@ void MainWindow::calculate_pay()
                 int row = beg_groups->tablet_list_tasks->currentRow();
                 int column = beg_groups->tablet_list_tasks->currentColumn();
 
-                qInfo() << "row = " << row << ", col = " << column;
+                qInfo() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
 
                 if(column <= 0 || row < 0) return;
 

@@ -172,6 +172,11 @@ void Employee::add_pay()
 
         tablet_list_pay->setItem(row, col, beg->back());
         tablet_list_pay->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
+
+        calendar.push_back(new QDateEdit());
+        calendar.back()->setCalendarPopup(true);
+        calendar.back()->setDate(QDate::currentDate());
+        tablet_list_pay->setCellWidget(0, col, calendar.back());
     }
 }
 
@@ -269,6 +274,12 @@ void Employee::delete_mem()
         }
     }
 
+    for(auto beg = calendar.begin(); beg != calendar.end(); beg++)
+    {
+        delete *beg;
+        calendar.pop_front();
+    }
+
     delete tablet_list_tasks;
     delete tablet_list_employees;
     delete tablet_list_pay;
@@ -315,8 +326,14 @@ void Employee::fill_tablet_list_pay()
                 item->setText(name_pay[row_i]);
                 item->setFlags(Qt::ItemIsEnabled);
             }
-
-            if(col != 0)
+            else if(col == 1)
+            {
+                calendar.push_back(new QDateEdit());
+                calendar.back()->setCalendarPopup(true);
+                calendar.back()->setDate(QDate::currentDate());
+                tablet_list_pay->setCellWidget(0, col, calendar.back());
+            }
+            else if(col != 0)
             {
                 item->setText("");
                 item->setTextAlignment(Qt::AlignCenter);

@@ -118,10 +118,9 @@ Address::Address(Address &&other) // r-value
     budget_remains_cnt_auto = other.budget_remains_cnt_auto;
     //====================================}
 
-    other.tab_page = nullptr;
     other.btn_page = nullptr;
 
-    other.page1 = nullptr;
+
     //{====================================
     other.button_add_emp = nullptr;
     other.button_delete_emp = nullptr;
@@ -129,7 +128,6 @@ Address::Address(Address &&other) // r-value
     //other.tablet_pay_groups = nullptr;
     //====================================}
 
-    other.page2 = nullptr;
     //{====================================
     other.name_obj = nullptr;
     other.name_str = nullptr;
@@ -173,13 +171,13 @@ Address::Address(Address &&other) // r-value
     other.total_price_ent = nullptr;
     other.total_price_ent_str_cnt = nullptr;
     //************************************
-    other.adding_work = nullptr;
     other.tablet_adding_work = nullptr;
     other.add_row = nullptr;
     other.delete_row = nullptr;
+    other.adding_work = nullptr;
     //************************************
-    other.total_work = nullptr;
     other.tablet_total_work = nullptr;
+    other.total_work = nullptr;
     //************************************
     other.budget_auto = nullptr;
     other.budget_cnt_auto = nullptr;
@@ -188,6 +186,11 @@ Address::Address(Address &&other) // r-value
     other.budget_remains_auto = nullptr;
     other.budget_remains_cnt_auto = nullptr;
     //====================================}
+
+    other.page1 = nullptr;
+    other.page2 = nullptr;
+
+    other.tab_page = nullptr;
 }
 
 Address &Address::operator=(const Address &other)
@@ -534,7 +537,7 @@ void Address::calculated_budget()
 
     if(tablet_adding_work->rowCount() > 0)
     {
-        for(int i = 0; i < tablet_adding_work->rowCount(); ++i)
+        for(int i = 0; i < row_count; ++i)
         {
             //qInfo() << "Calculate sum -> Calculated budget: tablet_adding_work->item(" << i << ", 3)->text() start step";
             if(!tablet_adding_work->item(i, 3))
@@ -693,10 +696,9 @@ void Address::clear_mem()
 {
     delete_mem();
 
-    tab_page = nullptr;
     btn_page = nullptr;
 
-    page1 = nullptr;
+
     //{====================================
     button_add_emp = nullptr;
     button_delete_emp = nullptr;
@@ -704,7 +706,6 @@ void Address::clear_mem()
     //tablet_pay_groups = nullptr;
     //====================================}
 
-    page2 = nullptr;
     //{====================================
     name_obj = nullptr;
     name_str = nullptr;
@@ -748,13 +749,13 @@ void Address::clear_mem()
     total_price_ent = nullptr;
     total_price_ent_str_cnt = nullptr;
     //************************************
-    adding_work = nullptr;
     tablet_adding_work = nullptr;
     add_row = nullptr;
     delete_row = nullptr;
+    adding_work = nullptr;
     //************************************
-    total_work = nullptr;
     tablet_total_work = nullptr;
+    total_work = nullptr;
     //************************************
     budget_auto = nullptr;
     budget_cnt_auto = nullptr;
@@ -763,6 +764,11 @@ void Address::clear_mem()
     budget_remains_auto = nullptr;
     budget_remains_cnt_auto = nullptr;
     //====================================}
+
+    page1 = nullptr;
+    page2 = nullptr;
+
+    tab_page = nullptr;
 }
 
 void Address::delete_mem()
@@ -789,10 +795,9 @@ void Address::delete_mem()
         }
     }
 
-    delete tab_page;
     delete btn_page;
 
-    delete page1;
+
     //{====================================
     delete button_add_emp;
     delete button_delete_emp;
@@ -800,7 +805,6 @@ void Address::delete_mem()
     //delete tablet_pay_groups;
     //====================================}
 
-    delete page2;
     //{====================================
     delete name_obj;
     delete name_str;
@@ -844,13 +848,13 @@ void Address::delete_mem()
     delete total_price_ent;
     delete total_price_ent_str_cnt;
     //************************************
-    delete adding_work;
     delete tablet_adding_work;
     delete add_row;
     delete delete_row;
+    delete adding_work;
     //************************************
-    delete total_work;
     delete tablet_total_work;
+    delete total_work;
     //************************************
     delete budget_auto;
     delete budget_cnt_auto;
@@ -859,4 +863,9 @@ void Address::delete_mem()
     delete budget_remains_auto;
     delete budget_remains_cnt_auto;
     //====================================}
+
+    delete page1;
+    delete page2;
+
+    delete tab_page;
 }
