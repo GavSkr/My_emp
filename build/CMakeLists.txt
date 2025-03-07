@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         address.h address.cpp
         employee.h employee.cpp
         funcs.h funcs.cpp
+        save_data.h save_data.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET My_emp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

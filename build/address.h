@@ -42,6 +42,7 @@ public:
     void set_list_price();
     QList<int> get_list_price();
     void fill_done_tasks();
+    void update_tablet_list_tasks();
 
     QString get_name();
     QString get_address();
@@ -50,7 +51,7 @@ public:
     QPushButton *btn_page = nullptr;
     std::list<QList<QTableWidgetItem*>> list_adding_works;
     std::list<QList<QTableWidgetItem*>> list_works;
-    std::list<Employee> list_groups;
+    std::list<Employee*> list_groups;
 
     QGroupBox *page1 = nullptr;
     //{====================================

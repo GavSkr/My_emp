@@ -4,8 +4,6 @@
 //#include <iostream>
 #include <QString>
 
-class Address;
-
 namespace adding_funcs
 {
     void separate_name(const QString full_name, QString& name, QString& last_name);

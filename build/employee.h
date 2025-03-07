@@ -30,11 +30,8 @@ public:
     QPushButton *button_delete_emp = nullptr;
     QPushButton *button_add_pay = nullptr;
 
-    QTableWidgetItem* item_name = nullptr;
-    QTableWidgetItem* item_total_pays = nullptr;
-
-    QTableWidgetItem* item_name_emp = nullptr;
-    QTableWidgetItem* item_total_pays_emp = nullptr;
+    QTableWidgetItem* item_group_name = nullptr;
+    QTableWidgetItem* item_group_total_pays = nullptr;
 
     std::list<QDateEdit*> calendar;
 
@@ -43,6 +40,7 @@ public:
     void add_pay();
     void calculate_pay();
     void fill_done_tasks();
+    void fill_tablet_list_pay();
     QList<int> get_done_tasks();
 
 private:
@@ -54,7 +52,7 @@ private:
     void new_obj();
     void clear_mem();
     void delete_mem();
-    void fill_tablet_list_pay();
+
 };
 
 #endif // EMPLOYEE_H

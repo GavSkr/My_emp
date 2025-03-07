@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "address.h"
 //#include "employee.h"
+#include "save_data.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -48,8 +49,11 @@ private slots:
     void delete_employee();
     void add_pay();
     void calculate_pay();
+    void set_name_group();
 
     void on_Button_delete_address_clicked();
+
+    void save_to_file();
 
 private:
     Ui::MainWindow *ui;

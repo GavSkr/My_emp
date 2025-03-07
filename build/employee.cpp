@@ -3,7 +3,7 @@
 
 Employee::Employee()
 {
-    name_group = "New name";
+    name_group = "New group name";
     //last_name = "last_name";
 
     new_obj();
@@ -24,7 +24,7 @@ Employee::Employee(const Employee &other) // copy
 {
     name_group = other.name_group;
     //last_name = other.last_name;
-
+    qInfo() << "Employee::Employee(const Employee &other): coping ...";
     clear_mem();
     new_obj();
 }
@@ -49,11 +49,8 @@ Employee::Employee(Employee &&other) // r-value
     button_delete_emp = other.button_delete_emp;
     button_add_pay = other.button_add_pay;
 
-    item_name = other.item_name;
-    item_total_pays = other.item_total_pays;
-
-    item_name_emp = other.item_name_emp;
-    item_total_pays_emp = other.item_total_pays_emp;
+    item_group_name = other.item_group_name;
+    item_group_total_pays = other.item_group_total_pays;
 
     other.tablet_list_tasks = nullptr;
     other.tablet_list_employees = nullptr;
@@ -63,11 +60,8 @@ Employee::Employee(Employee &&other) // r-value
     other.button_delete_emp = nullptr;
     other.button_add_pay = nullptr;
 
-    other.item_name = nullptr;
-    other.item_total_pays = nullptr;
-
-    other.item_name_emp = nullptr;
-    other.item_total_pays_emp = nullptr;
+    other.item_group_name = nullptr;
+    other.item_group_total_pays = nullptr;
 }
 
 QString Employee::get_full_name()
@@ -204,20 +198,14 @@ void Employee::new_obj()
     tablet_list_employees = new QTableWidget();
     tablet_list_pay = new QTableWidget();
 
-    fill_tablet_list_pay();
-
-    item_name = new QTableWidgetItem(name_group);
-    item_total_pays = new QTableWidgetItem("0");
+    item_group_name = new QTableWidgetItem(name_group);
+    item_group_total_pays = new QTableWidgetItem("0");
 
     button_add_emp = new QPushButton();
     button_delete_emp = new QPushButton();
     button_add_pay = new QPushButton();
 
-    item_name_emp = new QTableWidgetItem(name_group);
-    item_total_pays_emp = new QTableWidgetItem("0");
-
-    item_total_pays->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-    item_total_pays_emp->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    item_group_total_pays->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
 }
 
 void Employee::clear_mem()
@@ -232,25 +220,13 @@ void Employee::clear_mem()
     button_delete_emp = nullptr;
     button_add_pay = nullptr;
 
-    item_name = nullptr;
-    item_total_pays = nullptr;
-
-    item_name_emp = nullptr;
-    item_total_pays_emp = nullptr;
+    item_group_name = nullptr;
+    item_group_total_pays = nullptr;
 }
 
 void Employee::delete_mem()
 {
-    for(auto beg = list_tasks.begin(); beg !=list_tasks.end(); beg++)
-    {
-        while(!beg->empty())
-        {
-            delete beg->back();
-            beg->back() = nullptr;
-            beg->pop_back();
-            qInfo() << "delete item from LIST_TASKS";
-        }
-    }
+    qInfo() << "Employee::delete_mem(): starting ... ";
 
     for(auto beg = list_employees.begin(); beg !=list_employees.end(); beg++)
     {
@@ -261,6 +237,15 @@ void Employee::delete_mem()
             beg->pop_back();
             qInfo() << "delete item from LIST_EMPLOYEES";
         }
+    }
+
+    while(!calendar.empty())
+    {
+        qDebug() << "Employee::delete_mem(): calendar.size()" << calendar.size();
+        qDebug() << "Employee::delete_mem(): calendar.back()" << calendar.back()->date();
+        delete calendar.back();
+        calendar.back() = nullptr;
+        calendar.pop_front();
     }
 
     for(auto beg = list_pay.begin(); beg !=list_pay.end(); beg++)
@@ -274,25 +259,27 @@ void Employee::delete_mem()
         }
     }
 
-    for(auto beg = calendar.begin(); beg != calendar.end(); beg++)
+    for(auto beg = list_tasks.begin(); beg !=list_tasks.end(); beg++)
     {
-        delete *beg;
-        calendar.pop_front();
+        while(!beg->empty())
+        {
+            delete beg->back();
+            beg->back() = nullptr;
+            beg->pop_back();
+            qInfo() << "delete item from LIST_TASKS";
+        }
     }
 
-    delete tablet_list_tasks;
     delete tablet_list_employees;
     delete tablet_list_pay;
+    delete tablet_list_tasks;
 
     delete button_add_emp;
     delete button_delete_emp;
     delete button_add_pay;
 
-    delete item_name;
-    delete item_total_pays;
-
-    delete item_name_emp;
-    delete item_total_pays_emp;
+    delete item_group_name;
+    delete item_group_total_pays;
 }
 
 void Employee::fill_tablet_list_pay()
@@ -318,29 +305,36 @@ void Employee::fill_tablet_list_pay()
 
         int col = 0;
 
-        for(auto item : list_pay.back())
+        for(auto item = list_pay.back().begin(); item != list_pay.back().end(); item++, ++col)
         {
-            item = new QTableWidgetItem();
+            *item = new QTableWidgetItem();
             if(col == 0)
             {
-                item->setText(name_pay[row_i]);
-                item->setFlags(Qt::ItemIsEnabled);
+                (*item)->setText(name_pay[row_i]);
+                (*item)->setFlags(Qt::ItemIsEnabled);
             }
-            else if(col == 1)
+            else if(col == 1 && row_i == 0)
             {
-                calendar.push_back(new QDateEdit());
-                calendar.back()->setCalendarPopup(true);
-                calendar.back()->setDate(QDate::currentDate());
-                tablet_list_pay->setCellWidget(0, col, calendar.back());
+                //delete *item;
+                //*item = nullptr;
+                QDateEdit* it = new QDateEdit(QDate::currentDate());
+                if(it)
+                {
+                    calendar.push_back(it);
+                    calendar.back()->setCalendarPopup(true);
+                    //calendar.back()->setDate(QDate::currentDate());
+                    tablet_list_pay->setCellWidget(row_i, col, calendar.back());
+                    continue;
+                }
+                else
+                    qDebug() << "Employee::fill_tablet_list_pay(): QDateEdit = nullptr"  ;
             }
-            else if(col != 0)
+            else
             {
-                item->setText("");
-                item->setTextAlignment(Qt::AlignCenter);
+                (*item)->setText("");
+                (*item)->setTextAlignment(Qt::AlignCenter);
             }
-
-            tablet_list_pay->setItem(row_i, col, item);
-            ++col;
+            tablet_list_pay->setItem(row_i, col, *item);
             //qInfo() << "Add item in table " << i;
         }
 
