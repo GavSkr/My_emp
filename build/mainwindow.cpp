@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto tab_height = mainwindow_height - 70; // - 10 - 25 - 10 - 21;
     ui->tabWidget->setGeometry(10, 45, tab_width, tab_height);
 
-    QSettings settings("123MY_settings.ini", QSettings::IniFormat);
+    QSettings settings("data.ini", QSettings::IniFormat);
 
     bool set = settings.status();
 
@@ -120,7 +120,7 @@ void MainWindow::on_Button_delete_address_clicked()
 
 void MainWindow::on_Button_exit_clicked()
 {
-    //save_to_file();
+    save_to_file();
 
     builds.clear();
 
@@ -1539,7 +1539,7 @@ void MainWindow::clone_items_tablet()
             if(column == 1)
             {
                 beg->tablet_total_work->item(row_t, column)->setText(beg->tablet_adding_work->item(row, column)->text());
-                //beg->tablet_total_work->item(row_t, column + 2)->setText(beg->tablet_adding_work->item(row, column)->text());
+                beg->tablet_total_work->item(row_t, column + 2)->setText(beg->tablet_adding_work->item(row, column)->text());
             }
             break;
         }

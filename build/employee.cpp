@@ -139,39 +139,46 @@ void Employee::add_pay()
     tablet_list_pay->insertColumn(col);
 
     int row = 0;
+    tablet_list_tasks->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
+    tablet_list_tasks->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
     for(auto beg = list_tasks.begin(); beg != list_tasks.end(); ++beg, ++row)
     {
-        tablet_list_tasks->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
-
         QTableWidgetItem* tmp_tasks = new QTableWidgetItem();
 
+        tmp_tasks->setText("");
         tmp_tasks->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
         //tmp->setText("add_" + QString::number(i));
         beg->push_back(tmp_tasks);
 
         tablet_list_tasks->setItem(row, col, beg->back());
-        tablet_list_tasks->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
     }
+
 
     row = 0;
+    tablet_list_pay->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
     for(auto beg = list_pay.begin(); beg != list_pay.end(); ++beg, ++row)
     {
-        tablet_list_pay->setHorizontalHeaderItem(col, new QTableWidgetItem(QString::number(col)));
+        if(row == 0)
+        {
+            calendar.push_back(new QDateEdit());
+            calendar.back()->setCalendarPopup(true);
+            calendar.back()->setDate(QDate::currentDate());
+            tablet_list_pay->setCellWidget(0, col, calendar.back());
+            tablet_list_pay->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
+        }
+        else
+        {
+            QTableWidgetItem* tmp_pay = new QTableWidgetItem();
 
-        QTableWidgetItem* tmp_pay = new QTableWidgetItem();
+            tmp_pay->setText("");
+            tmp_pay->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+            //tmp->setText("add_" + QString::number(i));
+            beg->push_back(tmp_pay);
 
-        tmp_pay->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-        //tmp->setText("add_" + QString::number(i));
-        beg->push_back(tmp_pay);
-
-        tablet_list_pay->setItem(row, col, beg->back());
-        tablet_list_pay->setColumnWidth(col, tablet_list_tasks->columnWidth(1));
-
-        calendar.push_back(new QDateEdit());
-        calendar.back()->setCalendarPopup(true);
-        calendar.back()->setDate(QDate::currentDate());
-        tablet_list_pay->setCellWidget(0, col, calendar.back());
+            tablet_list_pay->setItem(row, col, beg->back());
+        }
     }
+    qDebug() << "Employee::add_pay(): size calendar = " << calendar.size();
 }
 
 void Employee::fill_done_tasks()
@@ -245,7 +252,7 @@ void Employee::delete_mem()
         qDebug() << "Employee::delete_mem(): calendar.back()" << calendar.back()->date();
         delete calendar.back();
         calendar.back() = nullptr;
-        calendar.pop_front();
+        calendar.pop_back();
     }
 
     for(auto beg = list_pay.begin(); beg !=list_pay.end(); beg++)
@@ -291,53 +298,58 @@ void Employee::fill_tablet_list_pay()
 
     tablet_list_pay->setRowCount(row_t);
     tablet_list_pay->setColumnCount(col_t);
+    int row_i = 0;
+    int col_i = 0;
 
-    for(int row_i = 0; row_i < row_t; ++row_i)
+    std::list<QTableWidgetItem*> *qlist_tmp_t = new std::list<QTableWidgetItem*>(1);
+    list_pay.push_back(*qlist_tmp_t);
+
+    for(auto item = list_pay.back().begin(); item != list_pay.back().end(); item++)
     {
+        *item = new QTableWidgetItem();
+        (*item)->setText(name_pay[row_i]);
+        (*item)->setFlags(Qt::ItemIsEnabled);
+        tablet_list_pay->setItem(row_i, col_i, *item);
+    }
+    delete qlist_tmp_t;
+    qlist_tmp_t = nullptr;
 
+    for(col_i = 1; col_i < col_t; ++col_i)
+    {
+        QDateEdit* it = new QDateEdit(QDate::currentDate());
+        if(it)
+        {
+            calendar.push_back(it);
+            calendar.back()->setCalendarPopup(true);
+            tablet_list_pay->setCellWidget(row_i, col_i, calendar.back());
+            qDebug() << "Employee::fill_tablet_list_pay(): size calendar = " << calendar.size();
+            continue;
+        }
+        else
+            qDebug() << "Employee::fill_tablet_list_pay(): QDateEdit = nullptr";
+    }
+
+    for(int row_i = 1; row_i < row_t; ++row_i)
+    {
+        col_i = 0;
         std::list<QTableWidgetItem*> *qlist_tmp_t = new std::list<QTableWidgetItem*>(tablet_list_pay->columnCount());
-
-        //qInfo() << "Size list_tmp " << list_tmp->size();
-
         list_pay.push_back(*qlist_tmp_t);
 
-        //qInfo() << "obj->name " << tablet_adding_work->objectName();
-
-        int col = 0;
-
-        for(auto item = list_pay.back().begin(); item != list_pay.back().end(); item++, ++col)
+        for(auto item = list_pay.back().begin(); item != list_pay.back().end(); item++, ++col_i)
         {
             *item = new QTableWidgetItem();
-            if(col == 0)
+            if(col_i == 0)
             {
                 (*item)->setText(name_pay[row_i]);
                 (*item)->setFlags(Qt::ItemIsEnabled);
             }
-            else if(col == 1 && row_i == 0)
-            {
-                //delete *item;
-                //*item = nullptr;
-                QDateEdit* it = new QDateEdit(QDate::currentDate());
-                if(it)
-                {
-                    calendar.push_back(it);
-                    calendar.back()->setCalendarPopup(true);
-                    //calendar.back()->setDate(QDate::currentDate());
-                    tablet_list_pay->setCellWidget(row_i, col, calendar.back());
-                    continue;
-                }
-                else
-                    qDebug() << "Employee::fill_tablet_list_pay(): QDateEdit = nullptr"  ;
-            }
             else
             {
                 (*item)->setText("");
-                (*item)->setTextAlignment(Qt::AlignCenter);
+                (*item)->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
             }
-            tablet_list_pay->setItem(row_i, col, *item);
-            //qInfo() << "Add item in table " << i;
+            tablet_list_pay->setItem(row_i, col_i, *item);
         }
-
         delete qlist_tmp_t;
         qlist_tmp_t = nullptr;
     }
