@@ -277,7 +277,7 @@ void Address::add_row_lst()
         tablet_adding_work->setItem(row, col, list_adding_works.back()[col]);
 
         //qInfo() << "Add item in table new QTWI" << col;
-        if(col == 0) list_adding_works.back()[col]->setText("name work");
+        if(col == 0) list_adding_works.back()[col]->setText("");
         if(col != 0) list_adding_works.back()[col]->setText("0");
         if(col == 1) list_adding_works.back()[col]->setTextAlignment(Qt::AlignCenter);
         if(col == 2 || col == 3 ) list_adding_works.back()[col]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
@@ -749,6 +749,72 @@ void Address::update_tablet_list_tasks()
             }
         }
     }
+}
+
+void Address::add_row_tablet_adding_works()
+{
+    int row = tablet_adding_work->rowCount();
+    tablet_adding_work->insertRow(row);
+
+    QList<QTableWidgetItem*> *list_tmp = new QList<QTableWidgetItem*>(tablet_adding_work->columnCount());
+
+    if(list_tmp == nullptr)
+    {
+        //qInfo() << "list_tmp is nullptr";
+        return;
+    }
+
+    list_adding_works.push_back(*list_tmp);
+
+    for(int col = 0; col < tablet_adding_work->columnCount(); ++col)
+    {
+        list_adding_works.back()[col] = new QTableWidgetItem();
+        tablet_adding_work->setItem(row, col, list_adding_works.back()[col]);
+
+        if(col == 0) list_adding_works.back()[col]->setText("");
+        if(col != 0) list_adding_works.back()[col]->setText("0");
+        if(col == 1) list_adding_works.back()[col]->setTextAlignment(Qt::AlignCenter);
+        if(col == 2 || col == 3 ) list_adding_works.back()[col]->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+    }
+
+    delete list_tmp;
+    list_tmp = nullptr;
+
+    if(tablet_adding_work->rowCount() > 0) delete_row->setEnabled(true);
+    adding_works = true;
+}
+
+void Address::add_row_tablet_total_works()
+{
+    int row_t = tablet_total_work->rowCount();
+    tablet_total_work->insertRow(row_t);
+
+    QList<QTableWidgetItem*> *list_tmp_t = new QList<QTableWidgetItem*>(tablet_total_work->columnCount());
+
+    if(list_tmp_t == nullptr)
+    {
+        //qInfo() << "list_tmp is nullptr";
+        return;
+    }
+
+    list_works.push_back(*list_tmp_t);
+
+    for(int i = 0; i < tablet_total_work->columnCount(); ++i)
+    {
+        list_works.back()[i] = new QTableWidgetItem();
+        list_works.back()[i]->setFlags(Qt::ItemIsEnabled);
+
+        if(i != 0)
+        {
+            list_works.back()[i]->setText("0");
+            list_works.back()[i]->setTextAlignment(Qt::AlignCenter);
+        }
+
+        tablet_total_work->setItem(row_t, i, list_works.back()[i]);
+    }
+
+    delete list_tmp_t;
+    list_tmp_t = nullptr;
 }
 
 QString  Address::get_name()

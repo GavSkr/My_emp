@@ -34,19 +34,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     bool set = settings.status();
 
-    if(!set && builds.empty())
+    if(!set)
     {
         qDebug() << "Status: " << set;
-        on_Button_add_address_clicked();
-        save_data::load_file(settings, builds);
+
+        settings.beginGroup("General");
+        uint count_obj = settings.value("count_obj", "0").toInt();
+        settings.endGroup();
+
+        for(uint ind = 0; ind < count_obj; ++ind)
+        {
+            on_Button_add_address_clicked();
+            save_data::load_file(settings, builds, ind);
+        }
+
     }
 
-    for(auto beg = builds.begin(); beg != builds.end(); ++beg)
-    {
-        qDebug() << "AFTER Loading data";
-        qDebug() << "Load a data successfull: beg->name = " << beg->get_name();
-        qDebug() << "Load a data successfull: beg->name_str = " << beg->name_str->text();
-    }
+    // for(auto beg = builds.begin(); beg != builds.end(); ++beg)
+    // {
+    //     qDebug() << "AFTER Loading data";
+    //     qDebug() << "Load a data successfull: beg->name = " << beg->get_name();
+    //     qDebug() << "Load a data successfull: beg->name_str = " << beg->name_str->text();
+    // }
 }
 
 MainWindow::~MainWindow()

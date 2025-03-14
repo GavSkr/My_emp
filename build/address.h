@@ -43,6 +43,8 @@ public:
     QList<int> get_list_price();
     void fill_done_tasks();
     void update_tablet_list_tasks();
+    void add_row_tablet_adding_works();
+    void add_row_tablet_total_works();
 
     QString get_name();
     QString get_address();
