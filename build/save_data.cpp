@@ -589,9 +589,7 @@ void save_data::load_file(QSettings &settings, std::list<Address> &builds, int i
                 auto cnt = (*group)->calendar.begin();
                 for(auto word = datas.begin(); word != datas.end() && cnt != (*group)->calendar.end(); word++, cnt++)
                 {
-                    qDebug() << "ASDADASDADS: word data = " << *word;
                     (*cnt)->setDate(QDate::fromString(*word, "dd.MM.yyyy"));
-                    qDebug() << "ASDADASDADS: calendar data = " << (*cnt)->text();
                 }
             }
             else if(row == 1)

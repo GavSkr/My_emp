@@ -642,8 +642,14 @@ void Address::fill_done_tasks()
         {
             done_taks[j] += lst[j];
         }
+        budget_executed += (*beg)->item_group_total_pays->text().toInt();
     }
 
+    budget_executed_str_cnt->setText(QString::number(budget_executed));
+    int budget = budget_str_cnt->text().toInt();
+    budget_remains_str_cnt->setText(QString::number(budget - budget_executed));
+
+    budget_executed = 0;
     for(int i = 0; i < done_taks.size(); ++i)
     {
         int cnt = tablet_total_work->item(i, 1)->text().toInt();
@@ -653,7 +659,7 @@ void Address::fill_done_tasks()
         budget_executed += done_taks[i] * list_prices[i];
     }
     budget_executed_cnt_auto->setText(QString::number(budget_executed));
-    int budget = budget_cnt_auto->text().toInt();
+    budget = budget_cnt_auto->text().toInt();
     budget_remains_cnt_auto->setText(QString::number(budget - budget_executed));
 }
 

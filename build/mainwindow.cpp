@@ -239,6 +239,7 @@ void MainWindow::add_group()
         beg->list_groups.back()->tablet_list_pay->setVisible(true);
         beg->list_groups.back()->fill_tablet_list_pay();
         connect(beg->list_groups.back()->tablet_list_pay, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols_g()));
+        connect(beg->list_groups.back()->tablet_list_pay, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(calculate_pay()));
     }
 
     int y_btn = beg->tablet_list_groups->geometry().y() + beg->tablet_list_groups->geometry().height() + 10;
@@ -1689,13 +1690,13 @@ void MainWindow::calculate_pay()
     auto beg = builds.begin();
     for(; beg != builds.end(); ++beg)
     {
-        auto beg_groups = beg->list_groups.begin();
-        for(; beg_groups != beg->list_groups.end(); ++beg_groups)
+        auto group = beg->list_groups.begin();
+        for(; group != beg->list_groups.end(); ++group)
         {
-            if(w_name == (*beg_groups)->tablet_list_tasks->objectName())
+            if(w_name == (*group)->tablet_list_tasks->objectName())
             {
-                int row = (*beg_groups)->tablet_list_tasks->currentRow();
-                int column = (*beg_groups)->tablet_list_tasks->currentColumn();
+                int row = (*group)->tablet_list_tasks->currentRow();
+                int column = (*group)->tablet_list_tasks->currentColumn();
 
                 //qInfo() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
 
@@ -1709,12 +1710,12 @@ void MainWindow::calculate_pay()
                 int pay = 0;
                 int pay_real = 0;
 
-                for(int i = 0; i < (*beg_groups)->tablet_list_tasks->rowCount(); ++i)
+                for(int i = 0; i < (*group)->tablet_list_tasks->rowCount(); ++i)
                 {
-                    if((*beg_groups)->tablet_list_tasks->item(i, column)->text() != "")
+                    if((*group)->tablet_list_tasks->item(i, column)->text() != "")
                     {
                         //qInfo() << "count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
-                        pay += prices[i] * (*beg_groups)->tablet_list_tasks->item(i, column)->text().toInt();
+                        pay += prices[i] * (*group)->tablet_list_tasks->item(i, column)->text().toInt();
                     }
                     else
                     {
@@ -1724,53 +1725,64 @@ void MainWindow::calculate_pay()
 
                 //qInfo() << "pay = " << pay;
 
-                (*beg_groups)->tablet_list_pay->item(1, column)->setText(QString::number(pay));
+                (*group)->tablet_list_pay->item(1, column)->setText(QString::number(pay));
 
-                if((*beg_groups)->tablet_list_pay->item(2, column)->text() == "")
+                if((*group)->tablet_list_pay->item(2, column)->text() == "")
                 {
-                    (*beg_groups)->tablet_list_pay->item(2, column)->setText(QString::number(pay));
-                    (*beg_groups)->tablet_list_pay->item(3, column)->setText("0");
                     pay_real = pay;
+                    (*group)->tablet_list_pay->item(2, column)->setText(QString::number(pay_real));
+                    (*group)->tablet_list_pay->item(3, column)->setText(QString::number(pay - pay_real));
                 }
                 else
                 {
-                    pay_real = (*beg_groups)->tablet_list_pay->item(2, column)->text().toInt();
-                    (*beg_groups)->tablet_list_pay->item(3, column)->setText(QString::number(pay - pay_real));
+                    pay_real = (*group)->tablet_list_pay->item(2, column)->text().toInt();
+                    (*group)->tablet_list_pay->item(3, column)->setText(QString::number(pay - pay_real));
                 }
 
-                auto row_group = beg->tablet_list_groups->currentRow();
+                break;
+            }
+            if(w_name == (*group)->tablet_list_pay->objectName())
+            {
+                int row = (*group)->tablet_list_pay->currentRow();
+                int column = (*group)->tablet_list_pay->currentColumn();
 
-                if(row_group == -1) row_group = 0;
+                //qInfo() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
 
-                int pay_group = 0;
-                for(int col = 1; col < (*beg_groups)->tablet_list_pay->columnCount(); ++col)
+                if(row == 2 && column > 0)
                 {
-                    if(!(*beg_groups)->tablet_list_pay->item(1, col)) break;
-                    pay_group += (*beg_groups)->tablet_list_pay->item(1, col)->text().toInt();
-                }
-                beg->tablet_list_groups->item(row_group, 1)->setText(QString::number(pay_group));
+                    //qInfo() << "pay = " << pay;
 
-                if((*beg_groups)->tablet_list_employees->rowCount() > 0)
-                {
-                    for(int i = 0; i < (*beg_groups)->tablet_list_employees->rowCount(); ++i)
+                    int pay_group = 0;
+
+                    for(int col = 1; col < (*group)->tablet_list_pay->columnCount(); ++col)
                     {
-                        if(i == 0)
+                        int pay = 0;
+                        int pay_real = 0;
+                        if((*group)->tablet_list_pay->item(1, col)->text() != "")
                         {
-                            int pay_emp_fst = 0;
-                            if((*beg_groups)->tablet_list_employees->item(i, 1)->text() != "")
-                                pay_emp_fst = (*beg_groups)->tablet_list_employees->item(i, 1)->text().toInt();
-
-                            pay_emp_fst += pay_real / (*beg_groups)->tablet_list_employees->rowCount() + pay_real % (*beg_groups)->tablet_list_employees->rowCount();
-                            (*beg_groups)->tablet_list_employees->item(i, 1)->setText(QString::number(pay_emp_fst));
+                            pay = (*group)->tablet_list_pay->item(1, col)->text().toInt();
                         }
-                        else
+                        if((*group)->tablet_list_pay->item(2, col)->text() != "")
                         {
-                            int pay_emp = 0;
-                            if((*beg_groups)->tablet_list_employees->item(i, 1)->text() != "")
-                                pay_emp = (*beg_groups)->tablet_list_employees->item(i, 1)->text().toInt();
+                            pay_real = (*group)->tablet_list_pay->item(2, col)->text().toInt();
+                            pay_group += pay_real;
+                        }
+                        (*group)->tablet_list_pay->item(3, col)->setText(QString::number(pay - pay_real));
+                    }
 
-                            pay_emp += pay_real / (*beg_groups)->tablet_list_employees->rowCount();
-                            (*beg_groups)->tablet_list_employees->item(i, 1)->setText(QString::number(pay_emp));
+                    (*group)->item_group_total_pays->setText(QString::number(pay_group));
+
+                    if((*group)->tablet_list_employees->rowCount() > 0)
+                    {
+                        int pay_emp = 0;
+                        int count_emp = (*group)->tablet_list_employees->rowCount();
+
+                        pay_emp = pay_group / count_emp + pay_group % count_emp;
+                        (*group)->tablet_list_employees->item(0, 1)->setText(QString::number(pay_emp));
+
+                        for(int i = 1; i < count_emp; ++i)
+                        {
+                            (*group)->tablet_list_employees->item(i, 1)->setText(QString::number(pay_group / count_emp));
                         }
                     }
                 }
