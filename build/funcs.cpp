@@ -1,5 +1,4 @@
 #include "funcs.h"
-//#include "address.h"
 
 void adding_funcs::separate_name(const QString full_name, QString &name, QString &last_name)
 {
@@ -21,7 +20,7 @@ QString adding_funcs::delete_letter(QString str)
     {
         if(!i.isDigit())
         {
-            //qInfo() << "isLetter: " << i;
+            //qDebug() << "adding_funcs::delete_letter(QString str): isLetter: " << i;
             str.remove(i);
         }
     }

@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "address.h"
-//#include "employee.h"
 #include "save_data.h"
 
 QT_BEGIN_NAMESPACE
@@ -49,7 +48,6 @@ private slots:
     void delete_employee();
     void add_pay();
     void calculate_pay();
-    void set_name_group();
 
     void on_Button_delete_address_clicked();
 

@@ -1,7 +1,10 @@
 #ifndef FUNCS_H
 #define FUNCS_H
 
-//#include <iostream>
+/*
+ *This file defines some functions.
+ */
+
 #include <QString>
 
 namespace adding_funcs

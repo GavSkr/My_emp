@@ -1,6 +1,10 @@
 #ifndef SAVE_DATA_H
 #define SAVE_DATA_H
 
+/*
+ *This file defines a saving and loading of data of an application.
+ */
+
 #include <list>
 #include <QSettings>
 class Address;

@@ -1,5 +1,4 @@
 #include "employee.h"
-//#include "funcs.h"
 
 Employee::Employee()
 {
@@ -11,7 +10,6 @@ Employee::Employee()
 
 Employee::Employee(QString full_name)
 {
-    //adding_funcs::separate_name(full_name, name, last_name);
     name_group = full_name;
 }
 
@@ -23,16 +21,15 @@ Employee::~Employee()
 Employee::Employee(const Employee &other) // copy
 {
     name_group = other.name_group;
-    //last_name = other.last_name;
-    qInfo() << "Employee::Employee(const Employee &other): coping ...";
+    qDebug() << "Employee::Employee(const Employee &other): coping ...";
     clear_mem();
     new_obj();
 }
 
 Employee::Employee(Employee &&other) // r-value
 {
+    qDebug() << "Employee::Employee(Employee &&other): r-value ...";
     name_group = other.name_group;
-    //last_name = other.last_name;
 
     delete_mem();
 
@@ -71,10 +68,10 @@ QString Employee::get_full_name()
 
 void Employee::set_name(QString full_name)
 {
-    //adding_funcs::separate_name(full_name, name, last_name);
     name_group = full_name;
 }
 
+//The function adds a row in a tablet "list of employees" of a group
 void Employee::add_employee()
 {
     auto row = tablet_list_employees->rowCount();
@@ -94,7 +91,7 @@ void Employee::add_employee()
         }
 
         tablet_list_employees->setItem(row, col, *beg);
-        //qInfo() << "Add item in table " << i;
+        //qDebug() << "Employee::add_employee(): Add item in table " << i;
     }
 
     delete list_tmp;
@@ -103,12 +100,13 @@ void Employee::add_employee()
     if(tablet_list_employees->columnCount() > 0) button_delete_emp->setEnabled(true);
 }
 
+//The function deletes a row in a tablet "list of employees" of a group
 void Employee::delete_employee()
 {
     int row = tablet_list_employees->currentRow();
 
     auto beg = list_employees.begin();
-    //qInfo() << "list_adding_works beg.size() = "<< beg->size();
+    //qDebug() << "Employee::delete_employee(): list_adding_works beg.size() = "<< beg->size();
 
     for(int i = 0; beg != list_employees.end(); beg++, ++i)
     {
@@ -130,6 +128,7 @@ void Employee::delete_employee()
     if(tablet_list_employees->columnCount() <= 0) button_delete_emp->setEnabled(false);
 }
 
+//The function adds a column in tablets "list of tasks" and "list of pays" of a group
 void Employee::add_pay()
 {
     if(list_tasks.empty()) return;
@@ -147,7 +146,6 @@ void Employee::add_pay()
 
         tmp_tasks->setText("");
         tmp_tasks->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-        //tmp->setText("add_" + QString::number(i));
         beg->push_back(tmp_tasks);
 
         tablet_list_tasks->setItem(row, col, beg->back());
@@ -172,15 +170,15 @@ void Employee::add_pay()
 
             tmp_pay->setText("");
             tmp_pay->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
-            //tmp->setText("add_" + QString::number(i));
             beg->push_back(tmp_pay);
 
             tablet_list_pay->setItem(row, col, beg->back());
         }
     }
-    qDebug() << "Employee::add_pay(): size calendar = " << calendar.size();
+    //qDebug() << "Employee::add_pay(): size calendar = " << calendar.size();
 }
 
+//The finction fills list of done tasks for one group
 void Employee::fill_done_tasks()
 {
     done_taks.clear();
@@ -233,7 +231,7 @@ void Employee::clear_mem()
 
 void Employee::delete_mem()
 {
-    qInfo() << "Employee::delete_mem(): starting ... ";
+    //qDebug() << "Employee::delete_mem(): starting ... ";
 
     for(auto beg = list_employees.begin(); beg !=list_employees.end(); beg++)
     {
@@ -242,14 +240,14 @@ void Employee::delete_mem()
             delete beg->back();
             beg->back() = nullptr;
             beg->pop_back();
-            qInfo() << "delete item from LIST_EMPLOYEES";
+            //qDebug() << "Employee::delete_mem(): delete item from LIST_EMPLOYEES";
         }
     }
 
     while(!calendar.empty())
     {
-        qDebug() << "Employee::delete_mem(): calendar.size()" << calendar.size();
-        qDebug() << "Employee::delete_mem(): calendar.back()" << calendar.back()->date();
+        //qDebug() << "Employee::delete_mem(): calendar.size()" << calendar.size();
+        //qDebug() << "Employee::delete_mem(): calendar.back()" << calendar.back()->date();
         delete calendar.back();
         calendar.back() = nullptr;
         calendar.pop_back();
@@ -262,7 +260,7 @@ void Employee::delete_mem()
             delete beg->back();
             beg->back() = nullptr;
             beg->pop_back();
-            qInfo() << "delete item from LIST_PAY";
+            //qDebug() << "Employee::delete_mem(): delete item from LIST_PAY";
         }
     }
 
@@ -273,7 +271,7 @@ void Employee::delete_mem()
             delete beg->back();
             beg->back() = nullptr;
             beg->pop_back();
-            qInfo() << "delete item from LIST_TASKS";
+            //qDebug() << "Employee::delete_mem(): delete item from LIST_TASKS";
         }
     }
 
@@ -289,12 +287,13 @@ void Employee::delete_mem()
     delete item_group_total_pays;
 }
 
+//The finction fills a tablet "list of pays" for new group
 void Employee::fill_tablet_list_pay()
 {
     int row_t = name_pay.size();
     int col_t = 2;
 
-    //qInfo() << "Count row " << row << " - Count column" << tablet_adding_work->columnCount();
+    //qDebug() << "Employee::fill_tablet_list_pay(): Count row " << row << " - Count column" << tablet_adding_work->columnCount();
 
     tablet_list_pay->setRowCount(row_t);
     tablet_list_pay->setColumnCount(col_t);
@@ -322,7 +321,7 @@ void Employee::fill_tablet_list_pay()
             calendar.push_back(it);
             calendar.back()->setCalendarPopup(true);
             tablet_list_pay->setCellWidget(row_i, col_i, calendar.back());
-            qDebug() << "Employee::fill_tablet_list_pay(): size calendar = " << calendar.size();
+            //qDebug() << "Employee::fill_tablet_list_pay(): size calendar = " << calendar.size();
             continue;
         }
         else

@@ -1,6 +1,11 @@
 #ifndef ADDRESS_H
 #define ADDRESS_H
 
+/*
+ *This class defines an object.
+ *It has a dimanic widgets.
+ */
+
 #include <QString>
 #include <QWidget>
 #include <QPushButton>
@@ -60,7 +65,6 @@ public:
     QPushButton *button_add_emp = nullptr;
     QPushButton *button_delete_emp = nullptr;
     QTableWidget *tablet_list_groups = nullptr;
-    //QTableWidget *tablet_pay_groups = nullptr;
     //====================================}
 
     QGroupBox *page2 = nullptr;
@@ -126,8 +130,11 @@ public:
 private:
     QString name = "";
     QString address = "";
+
+    //This member has names of general works.
+    //A size of array is count of general works.
     QList<QString> name_works {"Квартира 1 этап", "Квартира 2 этап","Коридор 1 этап","Коридор 2 этап"};
-    //QList<QString> name_tasks {"Дата выплаты", "Сумма выплаты","Остаток выплаты"};
+
     bool general_works = false;
     bool adding_works = false;
     int total_ap_old = 0;

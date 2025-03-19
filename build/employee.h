@@ -1,6 +1,11 @@
 #ifndef EMPLOYEE_H
 #define EMPLOYEE_H
 
+/*
+ *This class defines a group of employees.
+ *It has a dimanic widgets.
+ */
+
 #include <QString>
 #include <QTableWidget>
 #include <QPushButton>
@@ -45,7 +50,6 @@ public:
 
 private:
     QString name_group;
-    //QString last_name;
     QList<QString> name_pay {"Дата выплаты", "Расчётная сумма выплаты", "Фактическая сумма выплаты","Остаток выплаты"};
     QList<int> done_taks;
 

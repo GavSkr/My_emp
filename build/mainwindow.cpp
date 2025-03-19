@@ -20,23 +20,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Button_exit->setGeometry(btn_exit_x, 10, 150, 25);
 
     //Set position and size of the tab_widget from a size of a screen
-
     mainwindow_width = QApplication::primaryScreen()->geometry().width();
     mainwindow_height = QApplication::primaryScreen()->geometry().height();
 
-    //qInfo() << "Size MainWindow: " << mainwindow_width << "x" << mainwindow_height;
+    //qDebug() << "MainWindow::MainWindow(QWidget *parent): Size MainWindow: " << mainwindow_width << "x" << mainwindow_height;
 
     auto tab_width = mainwindow_width - 20;
     auto tab_height = mainwindow_height - 70; // - 10 - 25 - 10 - 21;
     ui->tabWidget->setGeometry(10, 45, tab_width, tab_height);
 
-    QSettings settings("data.ini", QSettings::IniFormat);
+    QSettings settings("data.ini", QSettings::IniFormat); //for reading a file with data
 
     bool set = settings.status();
 
     if(!set)
     {
-        qDebug() << "Status: " << set;
+        //qDebug() << "MainWindow::MainWindow(QWidget *parent): Status: " << set;
 
         settings.beginGroup("General");
         uint count_obj = settings.value("count_obj", "0").toInt();
@@ -47,15 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
             on_Button_add_address_clicked();
             save_data::load_file(settings, builds, ind);
         }
-
     }
-
-    // for(auto beg = builds.begin(); beg != builds.end(); ++beg)
-    // {
-    //     qDebug() << "AFTER Loading data";
-    //     qDebug() << "Load a data successfull: beg->name = " << beg->get_name();
-    //     qDebug() << "Load a data successfull: beg->name_str = " << beg->name_str->text();
-    // }
 }
 
 MainWindow::~MainWindow()
@@ -63,10 +54,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//Add a new object
 void MainWindow::on_Button_add_address_clicked()
 {
     Address adrs;
-    builds.push_back(adrs);
+    builds.push_back(adrs); // see a constructor of copy
 
     int index = 0;
     if(builds.back().tab_page)
@@ -76,8 +68,8 @@ void MainWindow::on_Button_add_address_clicked()
         index = ui->tabWidget->count();
     }
 
-    add_page1();
-    add_page2();
+    add_page1(); // create a page with parameters (widgets) of groups
+    add_page2(); // create a page with parameters (widgets) of a object
 
     if(builds.back().btn_page)
     {
@@ -101,49 +93,52 @@ void MainWindow::on_Button_add_address_clicked()
     ui->tabWidget->setCurrentIndex(index - 1);
 }
 
+//Delete an object without warning
 void MainWindow::on_Button_delete_address_clicked()
 {
     auto inx_tab = ui->tabWidget->currentIndex();
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): inxdex tab = " << inx_tab;
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): inxdex tab = " << inx_tab;
 
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
 
     int inx_beg = 0;
     for(auto beg = builds.begin(); beg != builds.end(); ++beg, ++inx_beg)
     {
         if(inx_beg == inx_tab)
         {
-            qInfo() << "MainWindow::on_Button_delete_address_clicked(): inxdex beg = " << inx_beg;
+            //qDebug() << "MainWindow::on_Button_delete_address_clicked(): inxdex beg = " << inx_beg;
             builds.erase(beg);
-            qInfo() << "MainWindow::on_Button_delete_address_clicked(): erase builds";
+            //qDebug() << "MainWindow::on_Button_delete_address_clicked(): erase builds";
             break;
         }
     }
 
-    //ui->tabWidget->removeTab(inx_tab);
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): remove tab";
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
-    //qInfo() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): remove tab";
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): count tab" << ui->tabWidget->count();
+    //qDebug() << "MainWindow::on_Button_delete_address_clicked(): size builds" << builds.size();
 }
 
+//Close an application
 void MainWindow::on_Button_exit_clicked()
 {
-    save_to_file();
+    save_to_file(); //save data in a file
 
     builds.clear();
 
     QApplication::quit();
 }
 
+//add a row (group) in tablet "list of groups" and parameters (widget) for new group
 void MainWindow::add_group()
 {
-    QString btn_name = QObject::sender()->objectName();
+    QString btn_name = QObject::sender()->objectName(); //take a name of a called widget
 
+    //find an object for it's name of a called widget
     auto beg = builds.begin();
     for(; beg != builds.end(); ++beg)
     {
-        if(btn_name == beg->button_add_emp->objectName())
+        if(btn_name == beg->button_add_emp->objectName()) //found a called widget
         {
             break;
         }
@@ -155,11 +150,10 @@ void MainWindow::add_group()
     int y = 45;
     int shift_x = 10;
 
-
     auto row = beg->tablet_list_groups->rowCount();
     beg->tablet_list_groups->insertRow(row);
 
-    if(!beg->list_groups.empty())
+    if(!beg->list_groups.empty()) //hide all widgets of groups
     {
         beg->list_groups.back()->tablet_list_tasks->setVisible(false);
         beg->list_groups.back()->button_add_emp->setVisible(false);
@@ -320,6 +314,7 @@ void MainWindow::add_group()
     (beg->tablet_list_groups->rowCount() > 0)? beg->button_delete_emp->setEnabled(true) : beg->button_delete_emp->setEnabled(false);
 }
 
+//delete a row (group) in tablet "list of groups" and parameters (widget) for a group
 void MainWindow::delete_group()
 {
     QString btn_name = QObject::sender()->objectName();
@@ -339,9 +334,10 @@ void MainWindow::delete_group()
     for(int i = 0; i < row && groups_beg != beg->list_groups.end(); ++i)
         groups_beg++;
 
-    if(groups_beg == beg->list_groups.end()) qInfo() << "PZDEC: size = " << beg->list_groups.size();
+    if(groups_beg == beg->list_groups.end())
+        qInfo() << "Critical ERROR: size = " << beg->list_groups.size();
 
-    qInfo() << "Delete group: " << row << " - " << (*groups_beg)->get_full_name();
+    //qDebug() << "MainWindow::delete_group(): Delete group: " << row << " - " << (*groups_beg)->get_full_name();
 
     beg->list_groups.erase(groups_beg);
 
@@ -376,12 +372,10 @@ void MainWindow::change_page()
         beg->page1->setVisible(true);
         beg->page2->setVisible(false);
         beg->set_list_price();
-
-        // if(!beg->list_groups.empty())
-        //     beg->update_tablet_list_tasks();
     }
 }
 
+//Create page with parameters of a group
 void MainWindow::add_page1()
 {
     if(builds.back().page1)
@@ -450,16 +444,16 @@ void MainWindow::add_page1()
         builds.back().tablet_list_groups->setHorizontalHeaderLabels(name_columns);
 
         connect(builds.back().tablet_list_groups, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(check_symbols()));
-        //connect(builds.back().tablet_list_groups, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(set_name_group()));
         connect(builds.back().tablet_list_groups, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(tablet_list_tasks_setVisible()));
     }
 }
 
+//Create page with parameters of an object
 void MainWindow::add_page2()
 {
     if(builds.back().page2)
     {
-        builds.back().page2->setParent(builds.back().tab_page);
+        builds.back().page2->setParent(builds.back().tab_page); // it is important for delete a widget. See a destructor of a class
 
         auto p2_width = ui->tabWidget->geometry().width() - 6 ;
         auto p2_height = ui->tabWidget->geometry().height() - 30;
@@ -1239,7 +1233,6 @@ void MainWindow::calculate_total_apartments()
 
             beg->apartments_total_cnt->setValue(total);
 
-            //calculate_total_budget_auto
             beg->calculated_budget();
             break;
         }
@@ -1308,8 +1301,7 @@ void MainWindow::calculate_total_price()
     QString lineedit_name = QObject::sender()->objectName();
 
     auto beg = builds.begin();
-    //int index = 0;
-    for(; beg != builds.end(); ++beg)//, ++index)
+    for(; beg != builds.end(); ++beg)
     {
         if(lineedit_name == beg->first_stage_ap_str_cnt->objectName() ||
            lineedit_name == beg->second_stage_ap_str_cnt->objectName() )
@@ -1335,8 +1327,7 @@ void MainWindow::calculate_total_budget_auto()
     QString lineedit_name = QObject::sender()->objectName();
 
     auto beg = builds.begin();
-    //int index = 0;
-    for(; beg != builds.end(); ++beg)//, ++index)
+    for(; beg != builds.end(); ++beg)
     {
         if(lineedit_name == beg->total_price_ap_str_cnt->objectName() ||
            lineedit_name == beg->total_price_ent_str_cnt->objectName() )
@@ -1346,13 +1337,13 @@ void MainWindow::calculate_total_budget_auto()
     }
 }
 
+//Called for push buttons "add an adding work" and "delete an adding work"
 void MainWindow::edit_tablet_adding_work()
 {
     QString pushbutton_name = QObject::sender()->objectName();
 
     auto beg = builds.begin();
-    //int index = 0;
-    for(; beg != builds.end(); ++beg)//, ++index)
+    for(; beg != builds.end(); ++beg)
     {
         if(pushbutton_name == beg->add_row->objectName())
         {
@@ -1369,13 +1360,13 @@ void MainWindow::edit_tablet_adding_work()
     }
 }
 
+//delete symbols isn't digital for widgets of an object
 void MainWindow::check_symbols()
 {
     QString w_name = QObject::sender()->objectName();
 
     auto beg = builds.begin();
-    //int index = 0;
-    for(; beg != builds.end(); ++beg)//, ++index)
+    for(; beg != builds.end(); ++beg)
     {
         if(w_name == beg->budget_str_cnt->objectName())
         {
@@ -1470,6 +1461,7 @@ void MainWindow::check_symbols()
     }
 }
 
+//delete symbols isn't digital for widgets of a group
 void MainWindow::check_symbols_g()
 {
     QString w_name = QObject::sender()->objectName();
@@ -1521,6 +1513,7 @@ void MainWindow::check_symbols_g()
     }
 }
 
+//copy a name and a count
 void MainWindow::clone_items_tablet()
 {
     QString w_name = QObject::sender()->objectName();
@@ -1585,6 +1578,7 @@ void MainWindow::calculate_sum()
     }
 }
 
+//show widgets of a select group in tablet "list of groups"
 void MainWindow::tablet_list_tasks_setVisible()
 {
     QString w_name = QObject::sender()->objectName();
@@ -1698,14 +1692,15 @@ void MainWindow::calculate_pay()
                 int row = (*group)->tablet_list_tasks->currentRow();
                 int column = (*group)->tablet_list_tasks->currentColumn();
 
-                //qInfo() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
+                //qDebug() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
 
                 if(column <= 0 || row < 0) return;
 
                 QList<int> prices = beg->get_list_price();
 
+                //DEBUG
                 //for(int i = 0; i < prices.size(); ++i)
-                //  qInfo() << "prices[] = " << prices[i];
+                //  qDebug() << "MainWindow::calculate_pay(): prices[] = " << prices[i];
 
                 int pay = 0;
                 int pay_real = 0;
@@ -1714,16 +1709,16 @@ void MainWindow::calculate_pay()
                 {
                     if((*group)->tablet_list_tasks->item(i, column)->text() != "")
                     {
-                        //qInfo() << "count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
+                        //qDebug() << "MainWindow::calculate_pay(): count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
                         pay += prices[i] * (*group)->tablet_list_tasks->item(i, column)->text().toInt();
                     }
                     else
                     {
-                        //qInfo() << "Clear count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
+                        //qDebug() << "MainWindow::calculate_pay(): Clear count[" << i << "] = " << beg_groups->tablet_list_tasks->item(i, column)->text();
                     }
                 }
 
-                //qInfo() << "pay = " << pay;
+                //qDebug() << "MainWindow::calculate_pay(): pay = " << pay;
 
                 (*group)->tablet_list_pay->item(1, column)->setText(QString::number(pay));
 
@@ -1746,11 +1741,11 @@ void MainWindow::calculate_pay()
                 int row = (*group)->tablet_list_pay->currentRow();
                 int column = (*group)->tablet_list_pay->currentColumn();
 
-                //qInfo() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
+                //qDebug() << "MainWindow::calculate_pay(): row = " << row << ", col = " << column;
 
                 if(row == 2 && column > 0)
                 {
-                    //qInfo() << "pay = " << pay;
+                    //qDebug() << "MainWindow::calculate_pay(): pay = " << pay;
 
                     int pay_group = 0;
 
@@ -1789,43 +1784,6 @@ void MainWindow::calculate_pay()
 
                 break;
             }
-        }
-    }
-}
-
-void MainWindow::set_name_group()
-{
-    QString w_name = QObject::sender()->objectName();
-
-    auto beg = builds.begin();
-    for(; beg != builds.end(); ++beg)
-    {
-        if(w_name == beg->tablet_list_groups->objectName())
-        {
-            int row = beg->tablet_list_groups->currentRow();
-            int column = beg->tablet_list_groups->currentColumn();
-
-            if(column == 1000)
-            {
-                int i = 0;
-                for(auto group = beg->list_groups.begin(); group != beg->list_groups.begin(); group++)
-                {
-                    if(i == row)
-                    {
-                        qDebug() << "MainWindow::set_name_group(): groups address &beg " << &*beg;
-                        qDebug() << "MainWindow::set_name_group(): groups address &group " << &group;
-                        //qDebug() << "MainWindow::set_name_group(): groups address &(*group) " << &(*group);
-                        qDebug() << "MainWindow::set_name_group(): groups size" << beg->list_groups.size();
-                        qDebug() << "MainWindow::set_name_group(): set name group = " << beg->tablet_list_groups->item(row, column)->text();
-                        QString name_group = beg->tablet_list_groups->item(row, column)->text();
-                        (*group)->item_group_name->setText(name_group);
-
-                        break;
-                    }
-                    i++;
-                }
-            }
-            break;
         }
     }
 }

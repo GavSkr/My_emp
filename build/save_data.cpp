@@ -10,7 +10,7 @@ void save_data::save_file(std::list<Address> &builds)
 
     QDateTime date = QDateTime::currentDateTime();
     settings.beginGroup("General");
-    settings.setValue("description", "Don't edit this file");
+    settings.setValue("Description", "Don't edit this file");
     settings.setValue("date", date.toString());
     settings.setValue("count_obj", builds.size());
     settings.endGroup();
@@ -270,7 +270,7 @@ void save_data::save_file(std::list<Address> &builds)
             {
                 if(row == 0)
                 {
-                    qDebug() << "save_data::save_file(std::list<Address> &builds): size calendar = " << (*group)->calendar.size();
+                    //qDebug() << "save_data::save_file(std::list<Address> &builds): size calendar = " << (*group)->calendar.size();
                     for(auto date = (*group)->calendar.begin(); date != (*group)->calendar.end(); ++date)
                     {
                         data += (*date)->text();
@@ -321,7 +321,17 @@ void save_data::save_file(std::list<Address> &builds)
         data.clear();
         settings.endGroup();
     }
-    qDebug() << "Save a data successfull: data = " << data;
+
+    bool set = settings.status();
+
+    if(!set)
+    {
+        qDebug() << "save_data::save_file(std::list<Address> &builds): Save a data successfully: Status: " << set;
+    }
+    else
+    {
+        qDebug() << "save_data::save_file(std::list<Address> &builds): Save a data unsuccessfully: Status: " << set;
+    }
 }
 
 void save_data::load_file(QSettings &settings, std::list<Address> &builds, int ind)
